@@ -310,7 +310,7 @@ reconcile_catchment_divides <- function(catchment,
   
   if(fix_catchments){
     # cat("Fixing Catchment Geometries...\n")
-    clean_geometry(catchments = out, "ID", 0.9) %>% 
+    clean_geometry(catchments = out, "ID", keep) %>% 
       sf::st_transform(in_crs)
   } else {
     sf::st_transform(out, in_crs)
