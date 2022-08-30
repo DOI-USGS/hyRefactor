@@ -36,6 +36,21 @@ union_polygons = function(poly, ID){
     poly = st_collection_extract(poly, "POLYGON")
   }
   return(poly)
+
+}
+
+#' DEPRECATED: Fast LINESTRING union
+#' @description Wayyyy faster then either data.table, or sf based line merging
+#' @param lines lines to merge
+#' @param ID ID to merge over
+#' @return an sf object
+#' @export
+
+union_linestrings_geos = function(lines, ID){
+  
+  u <- union_linestrings(lines, ID)
+  
+  u[match(unique(lines[[ID]]), u[[ID]]), ]
   
 }
 
