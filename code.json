@@ -3,7 +3,7 @@
     "name": "hyRefactor",
     "organization": "U.S. Geological Survey",
     "description": "Hydrologic Network Refactoring Tools Based on HY_Features",
-    "version": "0.4.7",
+    "version": "0.4.8",
     "status": "Production",
 
     "permissions": {
@@ -11,14 +11,14 @@
       "licenses": [
         {
           "name": "Public Domain, CC0-1.0",
-          "URL": "https://code.usgs.gov/water/hyRefactor/blob/v0.4.7/LICENSE"
+          "URL": "https://code.usgs.gov/water/hyRefactor/blob/v0.4.8/LICENSE"
         }
         ]
     },
 
     "homepageURL": "https://code.usgs.gov/water/hyRefactor/",
-    "downloadURL": "https://code.usgs.gov/water/hyRefactor/-/archive/v0.4.7/hyRefactor-v0.4.7.zip",
-    "disclaimerURL": "https://code.usgs.gov/water/hyRefactor/blob/v0.4.7/DISCLAIMER.md",
+    "downloadURL": "https://code.usgs.gov/water/hyRefactor/-/archive/v0.4.8/hyRefactor-v0.4.8.zip",
+    "disclaimerURL": "https://code.usgs.gov/water/hyRefactor/blob/v0.4.8/DISCLAIMER.md",
     "repositoryURL": "https://code.usgs.gov/water/hyRefactor.git",
     "vcs": "git",
 
@@ -41,7 +41,7 @@
     },
 
     "date": {
-      "metadataLastUpdated": "2022-05-10"
+      "metadataLastUpdated": "2022-09-22"
     }
   }
 ]
