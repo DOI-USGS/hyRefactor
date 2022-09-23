@@ -1,8 +1,8 @@
 # Vignettes
 - [Refactor Flowlines](refactor_nhdplus.md)
-- [Split Flowlines](split_refactor.html)
-- [Refactor Catchments](refactor_catchment.html)
-- [Coastal Units with hyRefactor](coastal_units.html)
+- [Split Flowlines](split_refactor.md)
+- [Refactor Catchments](refactor_catchment.md)
+- [Coastal Units with hyRefactor](coastal_units.md)
 
 # Function Reference
 
