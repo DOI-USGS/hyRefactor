@@ -133,12 +133,14 @@ plot(walker_flowline$geom, lwd = .7, col = "blue", add = TRUE)
 
 The `split_catchment_divide()` function can be used in two ways. If provided with multiple flowpaths per catchment boundary, it will split catchments along their length. If provided one or more with the `lr` parameter set to `TRUE`, it will also split each catchment into two pieces along the flowpath. In headwater catchments, the left-right split will extend upstream along the maximum upstream flow accumulation path till it reaches the catchment divide. `split_catchment_divide()` is called in the `refactor_nhdplus()` workflow but this left-right split is not applied then. This next block shows how to apply the split to aggregated results.
 
+NOTE: left / right split is not function in v0.4.8
+
 ```{r split}
 
 split_catchments <- do.call(c, lapply(c(1:nrow(aggregated$cat_sets)), 
                                       function(g, ac, af, fdr, fac) {
                                         split_catchment_divide(ac[g, ], af[g, ], 
-                                                               fdr, fac, lr = TRUE)
+                                                               fdr, fac, lr = FALSE)
                                       }, 
                                       ac = aggregated$cat_sets, 
                                       af = aggregated$fline_sets, 

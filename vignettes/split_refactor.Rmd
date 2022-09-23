@@ -21,7 +21,7 @@ new_hope_flowline <- dplyr::right_join(dplyr::select(new_hope_flowline, COMID, R
                                                                  0, 0, 0, FALSE, warn = FALSE)), 
                                 by = "COMID")
 
-mapview::mapview(list(new_hope_events, new_hope_flowline))
+nhdplusTools::plot_nhdplus(outlets = new_hope_flowline$COMID, nhdplus_data = file.path(extdata, "new_hope.gpkg"), flowline_only = TRUE)
 
 ```
 
@@ -33,8 +33,11 @@ split <- hyRefactor::split_flowlines(suppressWarnings(sf::st_cast(sf::st_transfo
 
 split_outlets <- sf::st_sf(sf::st_drop_geometry(split), geom = sf::st_geometry(nhdplusTools::get_node(split, position = "end")))
 
-mapview::mapview(split) +
-  mapview::mapview(split_outlets, cex = 2) +
-  mapview::mapview(new_hope_events)
+plt <- function(x) sf::st_geometry(sf::st_transform(x, 3857))
+
+nhdplusTools::plot_nhdplus(outlets = new_hope_flowline$COMID, nhdplus_data = file.path(extdata, "new_hope.gpkg"), flowline_only = TRUE)
+plot(plt(split), add = TRUE)
+plot(plt(split_outlets), add = TRUE, cex = 2)
+plot(plt(new_hope_events), add = TRUE, cex = 1, col = "red")
 
 ```

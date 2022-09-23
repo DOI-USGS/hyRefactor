@@ -95,8 +95,8 @@ the split\_flowlines function.
         st_as_sf() %>%
         st_cast("LINESTRING") %>%
         st_transform(5070)
-    #> Warning in st_cast.sf(., "LINESTRING"): repeating attributes for
-    #> all sub-geometries for which they may not be constant
+    #> Warning in st_cast.sf(., "LINESTRING"): repeating attributes for all sub-geometries for which
+    #> they may not be constant
 
     flines <- split_flowlines(flines, 
                               max_length = 2000, 
@@ -178,10 +178,9 @@ together to form each new flowline.
     collapsed$member_COMID <- sapply(collapsed$member_COMID, paste, collapse = ",")
 
     st_write(st_transform(collapsed, 4326), "nhdplus_reconciled.gpkg", layer_options = "OVERWRITE=YES")
-    #> Writing layer `nhdplus_reconciled' to data source 
-    #>   `nhdplus_reconciled.gpkg' using driver `GPKG'
+    #> Writing layer `nhdplus_reconciled' to data source `nhdplus_reconciled.gpkg' using driver `GPKG'
     #> options:        OVERWRITE=YES 
-    #> Writing 877 features with 8 fields and geometry type Unknown (any).
+    #> Writing 877 features with 9 fields and geometry type Unknown (any).
 
 ![](../docs/refactor_nhdplus_files/figure-markdown_strict/reconcile_secret-1.png)
 
