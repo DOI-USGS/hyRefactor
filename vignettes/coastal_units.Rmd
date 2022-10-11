@@ -19,7 +19,7 @@ vignette: >
 options("rgdal_show_exportToProj4_warnings"="none",
         rmarkdown.html_vignette.check_title = FALSE)
 library(magrittr)
-
+sf::sf_use_s2(FALSE)
 fdr_path <- "../../gfv2/workspace/data/fdrfac/NHDPlusCA/NHDPlus18/NHDPlusFdrFac18c/fdr/"
 fac_path <- "../../gfv2/workspace/data/fdrfac/NHDPlusCA/NHDPlus18/NHDPlusFdrFac18c/fac/"
 ```
@@ -58,10 +58,20 @@ sub <- lapply(nhdplusTools::subset_nhdplus(c(as.integer(flowline$nhdplus_comid),
                                     nhdplus_data = "download", flowline_only = FALSE),
               nhdplusTools::align_nhdplus_names)
 
+plt <- function(x) sf::st_geometry(sf::st_transform(x, 3857))
 
-mapview::mapview(sub$NHDFlowline_Network) + 
-  mapview::mapview(sub$CatchmentSP, color = "darkgrey", col.regions = "tan")
+net <- sub$NHDFlowline_Network
+cats <- sub$CatchmentSP
+
+nhdplusTools::plot_nhdplus(bbox = bbox, nhdplus_data = temp_gpkg, 
+                           plot_config = list(
+                             flowline = list(lwd = 0.5, col = "lightblue")), 
+                           flowline_only = TRUE)
+plot(plt(cats), add = TRUE, col = "tan")
+plot(plt(net), add = TRUE, col = "blue")
+
 ```
+
 Now that we have our subset ready to go, we'll need to get some flow direction and flow accumulation data to use with hyRefactor later on.
 ```{r fdr_fac, eval=FALSE}
 fdr_dir = file.path(tempdir(check = TRUE), "fdr_fac")
@@ -79,15 +89,12 @@ library(terra)
 fdr <- terra::rast(fdr_path)
 fac <- terra::rast(fac_path)
 crs <- terra::crs(fac)
-fdr <- terra::crop(fdr, sf::st_transform(sub$CatchmentSP, crs))
-fac <- terra::crop(fac, sf::st_transform(sub$CatchmentSP, crs))
+fdr <- terra::crop(fdr, sf::st_transform(cats, crs))
+fac <- terra::crop(fac, sf::st_transform(cats, crs))
 plot(fdr)
 ```
 Now that we have all our data ready to go, we can get our networks that we want to refactor pulled out from our coastal catchments and small coastal basins. 
 ```{r}
-net <- sub$NHDFlowline_Network
-cats <- sub$CatchmentSP
-
 coastal <- net[net$FTYPE == "Coastline", ]
 coastal_cats <- cats[cats$FEATUREID %in% coastal$COMID, ]
 
@@ -98,11 +105,16 @@ nhd_outlets <- dplyr::filter(net, TerminalFl == 1)
 
 sf::st_geometry(nhd_outlets) <- sf::st_geometry(nhdplusTools::get_node(nhd_outlets, "end"))
 
-mapview::mapview(net) + 
-  mapview::mapview(cats, color = "darkgrey", col.regions = "tan") + 
-  mapview::mapview(coastal, color = "lightblue") + 
-  mapview::mapview(coastal_cats, color = "darkgrey", col.regions = "brown") + 
-  mapview::mapview(nhd_outlets, color = "black")
+nhdplusTools::plot_nhdplus(bbox = bbox, nhdplus_data = temp_gpkg, 
+                           plot_config = list(
+                             flowline = list(lwd = 0.5, col = "lightblue")), 
+                           flowline_only = TRUE)
+plot(plt(cats), add = TRUE, col = "tan")
+plot(plt(net), add = TRUE, col = "lightblue")
+plot(plt(coastal_cats), add = TRUE, col = "grey")
+plot(plt(coastal), add = TRUE, col = "blue")
+plot(plt(nhd_outlets), add = TRUE, col = "black")
+
 ```
 
 Now we will identify coastal basins that we want to lump into coastal catchments as part of the refactor workflow.
@@ -119,8 +131,14 @@ outlets <- dplyr::select(nhd_outlets, COMID) %>%
   dplyr::filter(COMID %in% cats$FEATUREID) %>%
   dplyr::mutate(keep = ifelse(COMID %in% little_terminal$COMID, "temporary", "keep"))
 
-mapview::mapview(outlets, zcol = "keep") + 
-  mapview::mapview(net)
+nhdplusTools::plot_nhdplus(bbox = bbox, nhdplus_data = temp_gpkg, 
+                           plot_config = list(
+                             flowline = list(lwd = 0.5, col = "lightblue")), 
+                           flowline_only = TRUE)
+plot(plt(net), add = TRUE, col = "lightblue")
+plot(plt(outlets[outlets$keep == "keep",]), add = TRUE, col = "red")
+plot(plt(outlets[outlets$keep == "temporary",]), add = TRUE, col = "black")
+
 ```
 
 We can now run `refactor_nhdplus` and `reconcile_catchment_divides`. 
@@ -156,8 +174,12 @@ divides <- reconcile_catchment_divides(catchment = cats,
                                        fac = fac_path,
                                        para = 1) 
 
-mapview::mapview(reconciled) + 
-  mapview::mapview(divides)
+nhdplusTools::plot_nhdplus(bbox = bbox, nhdplus_data = temp_gpkg, 
+                           plot_config = list(
+                             flowline = list(lwd = 0.5, col = "lightblue")), 
+                           flowline_only = TRUE)
+plot(plt(divides), add = TRUE, col = "tan")
+plot(plt(reconciled), add = TRUE, col = "blue")
 ```
 Finally, we can identify the outlets 
 ```{r}
@@ -176,6 +198,12 @@ agg_cats <- aggregate_catchments(flowpath = reconciled,
                                  coastal_cats = sf::st_transform(coastal_cats, sf::st_crs(divides)),
                                  da_thresh = 1, 
                                  only_larger = TRUE)
-mapview::mapview(agg_cats)
+nhdplusTools::plot_nhdplus(bbox = bbox, nhdplus_data = temp_gpkg, 
+                           plot_config = list(
+                             flowline = list(lwd = 0.5, col = "lightblue")), 
+                           flowline_only = TRUE)
+plot(plt(agg_cats$cat_sets), add = TRUE, col = "tan")
+plot(plt(agg_cats$fline_sets), add = TRUE, col = "blue")
+plot(plt(agg_cats$coastal_sets), add = TRUE, col = "grey")
 ```
 

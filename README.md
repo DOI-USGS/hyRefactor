@@ -1,34 +1,39 @@
 # hyRefactor
 
-[![R-CMD-check](https://github.com/dblodgett-usgs/hyRefactor/actions/workflows/R-CMD-check.yml/badge.svg)](https://github.com/dblodgett-usgs/hyRefactor/actions/workflows/R-CMD-check.yml) [![codecov](https://codecov.io/gh/dblodgett-usgs/hyRefactor/branch/master/graph/badge.svg?token=GSJGAVH1T4)](https://codecov.io/gh/dblodgett-usgs/hyRefactor)
-
 ## Tools for Manipulating the NHDPlus Network in Preparation for Hydrologic Modeling
+
+The hyRefactor package was developed over a considerable period of time as part of a broad research project to develop a unified hydrofabric for the U.S. Geological Survey National Water Census and National Weather Service National Water Model. Work on this specific package has moved to a new development space under https://github.com/noaa-owp/hydrofab. That package will be released as a USGS data release when ready.
+
+Software in this package has been rigorously tested (90% code coverage shown in [v0.4.8_coverage.html](v0.4.8_coverage.html)) and results of its use have been evaluated extensively. Any use outside of the National Hydrologic Geospatial Fabric workflow it was developed for may produce unexpected results.
+
+Documentation in the package was developed as a best effort by the authors while the package was in development. Some exported functions may have limited documentation in which case package code should be inspected to understand nuances of the implementation.
 
 ### Installation:
 
 ```
 install.packages("remotes")
-install.packages("rgeos", repos="http://R-Forge.R-project.org", type="source")
-remotes::install_github("dblodgett-usgs/hyRefactor")
+remotes::install_git("https://code.usgs.gov/Water/hyRefactor")
 ```
 
-This package is based around the same concepts as [nhdplusTools](https://usgs-r.github.io/nhdplusTools/) and uses its utilities extensively.
+This package is based around the same concepts as [nhdplusTools](https://doi.org/10.5066/P97AS8JD) and uses its utilities extensively.
 
-Rendered documentation can be [found here.](https://github.com/dblodgett-usgs/hyRefactor/blob/master/docs/Reference_Manual_hyRefactor.md)
+Rendered documentation can be [found here.](docs/Reference_Manual_hyRefactor.md)  
+Note: Large vignettes have been rendered to html and need to be downloaded and opened in a browser.
 
 ### What is Refactoring in the context of hydrographic data?
 
 The concept of refactoring as intended here includes:
 
-1) **Splitting** large or long catchments to create a more uniform catchment size
-distribution,  
-2) **collapsing** catchment topology to eliminate small catchments,  
-3) **aggregating** catchments into groups based on existing network topology.  
+**splitting** large or long catchments to create a more uniform catchment size
+distribution   
+**collapsing** catchment topology to eliminate small catchments  
+
+The package also includes "aggregation" functionality:
+3) **aggregating** catchments into groups based on existing network topology  
 
 This type of functionality is especially relevant to modeling applications that
 need specific modeling unit characteristics but wish to preserve the network as
-much as possible for interoperability with other applications that use the
-NHDPlus network.
+much as possible for interoperability.
 
 ### Check notes:
 In addition to typical R package checking, a Dockerfile is included in this repository. Once built, it can be run with the following command.
@@ -36,25 +41,8 @@ In addition to typical R package checking, a Dockerfile is included in this repo
 ```
 docker build -t hyrefactor_test .
 
-docker run --rm -it -v %cd%:/src hyrefactor_test /bin/bash -c "cp -r /src/* /check/ && cp /src/.Rbuildignore /check/ && cd /check && Rscript -e 'devtools::build()' && R CMD check --as-cran ../hyRefacto_*"
+docker run --rm -it -v $PWD:/src hyrefactor_test /bin/bash -c "cp -r /src/* /check/ && cp /src/.Rbuildignore /check/ && cd /check && Rscript -e 'devtools::build()' && R CMD check --as-cran ../hyRefacto_*"
 ```
-
-### Contributing:
-
-First, thanks for considering a contribution! I hope to make this package a community created resource
-for us all to gain from and won't be able to do that without your help!
-
-1) Contributions should be thoroughly tested with [testthat](https://testthat.r-lib.org/).  
-2) Code style should attempt to follow the [tidyverse style guide.](http://style.tidyverse.org/)  
-3) Please attempt to describe what you want to do prior to contributing by submitting an issue.  
-4) Please follow the typical github [fork - pull-request workflow.](https://gist.github.com/Chaser324/ce0505fbed06b947d962)  
-5) Make sure you use roxygen and run Check before contributing. More on this front as the package matures. 
-
-Other notes:
-- lintr runs in the tests so... write good code.
-- consider running `goodpractice::gp()` on the package before contributing.
-- consider running `devtools::spell_check()` if you wrote documentation.
-- this package may end up using pkgdown running `pkgdown::build_site()` will refresh it.
 
 ## Disclaimer
 
