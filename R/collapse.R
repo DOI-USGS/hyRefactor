@@ -428,10 +428,12 @@ collapse_outlets <- function(flines, thresh,
 
     # Check if the eliminated COMID had anything going to it.
     need_to_update_index <-
-      which(flines$joined_fromCOMID %in% short_flines$COMID)
+      match(short_flines$COMID, flines$joined_fromCOMID)
 
-    flines[["joined_fromCOMID"]][need_to_update_index] <-
-      short_flines$fromCOMID
+    if(!all(is.na(need_to_update_index))) {
+      flines[["joined_fromCOMID"]][need_to_update_index] <-
+        short_flines$fromCOMID
+    }
 
     # Mark the ones that are being removed with
     # which comid they got joined with.
