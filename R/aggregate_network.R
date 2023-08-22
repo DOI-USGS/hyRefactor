@@ -264,6 +264,8 @@ make_outlets_valid <- function(outlets, flowpath,
     }
   }
 
+  otl <- distinct(otl)
+  
   # Need to check that a "next down tributary" in the outlet set has a break along the
   # main stem that each outlet contributes to.
   otl <- left_join(otl, select(drop_geometry(flowpath),
@@ -338,6 +340,14 @@ make_outlets_valid <- function(outlets, flowpath,
       otl <- get_outlets(outlets, lps)
     }
   }
+  
+  # deduplicate outlets.
+  outlets <- distinct(outlets) %>%
+    group_by(.data$ID) %>%
+    filter(!(n() > 1 & # this removes outlets that duplicate terminals.
+               # they can be added in the above outlets check.
+               .data$type == "outlet")) %>%
+    ungroup()
 
   return(outlets)
 }
@@ -485,7 +495,7 @@ get_catchment_sets <- function(flowpath, outlets) {
                      cut(path,
                          breaks = c(0, breaks$id),
                          labels = c(breaks$set)))
-
+      
       cat_sets$set[as.integer(names(paths))] <-
         lapply(names(paths), function(x) {
           my_combine(cat_sets$set[as.integer(x)][[1]],

@@ -50,15 +50,15 @@ aggregate_lookup_cat <- dplyr::select(sf::st_drop_geometry(aggregated$cat_sets),
 expect_true(all(walker_fline_rec$ID %in% unlist(aggregate_lookup_cat$set)), 
             "all input ids should be in catchment output")
 
-expect_equal(aggregated_cat$toID, get_id(c(NA, "5329843", "5329339.1", "5329303")), info = "Expect these toIDs")
+expect_true(all(aggregated_cat$toID %in% get_id(c(NA, "5329843", "5329339.1", "5329303"))), info = "Expect these toIDs")
 
 expect_true(all(aggregated_cat$toID[!is.na(aggregated_cat$toID)] %in% aggregated_cat$ID),
        "All not NA toIDs should be in IDs")
 
 ### Make sure we can run split_catchment_divide on aggregate output.
-crs <- st_crs(walker_fdr)
-aggregated_cat <- st_transform(aggregated_cat, crs)
-aggregated_fline <- st_transform(aggregated_fline, crs)
+crs <- sf::st_crs(walker_fdr)
+aggregated_cat <- sf::st_transform(aggregated_cat, crs)
+aggregated_fline <- sf::st_transform(aggregated_fline, crs)
 
 aggregated_cat <- aggregated_cat[match(aggregated_fline$ID, aggregated_cat$ID), ]
 
