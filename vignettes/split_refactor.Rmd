@@ -9,6 +9,18 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r setup, include = FALSE}
+local <- (Sys.getenv("BUILD_VIGNETTES") == "TRUE")
+
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width=6,
+  fig.height=4,
+  eval=local
+)
+```
+
 A complete refactor workflow is presented in `vignette("refactor_nhdplus")`. This article is used to describe the split-flowlines step in detail. The split flowlines functionality is intended to support either splitting flowlines that are too long at arbitrary locations or splitting flowlines at specific locations such as stream gages or particular model-output locations.
 
 We'll use the sample "New Hope" watershed included in the package and prepare it for processing with `nhdplusTools::prepare_nhdplus()`
