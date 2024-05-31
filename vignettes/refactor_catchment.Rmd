@@ -34,8 +34,8 @@ library(hyRefactor)
 
 source(system.file("extdata", "walker_data.R", package = "hyRefactor"))
 
-fac <- walker_fac@ptr$filenames
-fdr <- walker_fdr@ptr$filenames
+fac <- walker_fac@ptr$filenames()
+fdr <- walker_fdr@ptr$filenames()
 
 ref <- tempfile(fileext = ".gpkg")
 rec <- tempfile(fileext = ".gpkg")
