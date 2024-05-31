@@ -176,12 +176,6 @@ split_lines <- function(input_lines,
   return(input_lines)
 }
 
-new_line <- function(i, f, t, l) {
-  lwgeom::st_linesubstring(x = sf::st_geometry(l)[i],
-                           from = f,
-                           to = t)[[1]]
-}
-
 # rescale REACH_meas to comid_meas
 
 rf <- function(m, f, t) {
@@ -212,6 +206,13 @@ split_lines_fun <- function(split_points, lines, para) {
   
   lines <- pbapply::pblapply(seq_len(nrow(split_points)),
                                FUN = function(x, s, lines) {
+                                 
+                                 new_line <- function(i, f, t, l) {
+                                   lwgeom::st_linesubstring(x = sf::st_geometry(l)[i],
+                                                            from = f,
+                                                            to = t)[[1]]
+                                 }
+                                 
                                  new_line(i = which(lines$COMID == s$COMID[x]),
                                           f = split_points$start[x],
                                           t = split_points$end[x],

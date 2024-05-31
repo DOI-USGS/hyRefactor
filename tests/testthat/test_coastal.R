@@ -48,7 +48,8 @@ min_da_km <- 10
 
 test_that("basic coastal aggregation", {
   nhd <- sf::read_sf(source_gpkg, "NHDFlowline_Network") %>%
-    nhdplusTools::align_nhdplus_names()
+    nhdplusTools::align_nhdplus_names() |>
+    dplyr::select(-id)
   
   coastal <- nhd[nhd$FTYPE == "Coastline", ]
   
