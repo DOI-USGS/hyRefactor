@@ -141,7 +141,7 @@ collapse_flowlines <- function(flines, thresh, add_category = FALSE,
 
   if (nrow(removed_mainstem) > 0) removed_mainstem[["joined_toCOMID"]] <- NA
 
-  if (!is.null(mainstem_thresh) & !is.null(mainstem_top_tracker)) {
+  if (!is.null(mainstem_thresh) && !is.null(mainstem_top_tracker)) {
     removed_mainstem_top <-
       left_join(data.frame(removed_COMID = mainstem_top_tracker,
                            joined_fromCOMID = NA, stringsAsFactors = FALSE),
@@ -286,7 +286,7 @@ collapse_flowlines <- function(flines, thresh, add_category = FALSE,
   count <- 0
 
   # Should investigate why NAs are coming out of the splitter.
-  while (any(bad_rows_to(flines), na.rm = TRUE) |
+  while (any(bad_rows_to(flines), na.rm = TRUE) ||
          any(bad_rows_from(flines), na.rm = TRUE)) {
 
     flines <- left_join(flines,
@@ -355,7 +355,7 @@ collapse_outlets <- function(flines, thresh,
                              exclude_cats = NULL,
                              warn = TRUE) {
 
-  if (("joined_toCOMID" %in% names(flines) |
+  if (("joined_toCOMID" %in% names(flines) ||
         "joined_fromCOMID" %in% names(flines))) {
     if (warn) {
       warning("collapse outllets must be used with un modified flines. \n",

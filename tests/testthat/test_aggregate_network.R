@@ -68,4 +68,3 @@ test_that("missing outlet", {
   
   expect_true(21047070 %in% outlets$ID)
 })
-

@@ -86,7 +86,7 @@ aggregate_catchments <- function(flowpath, divide, outlets, zero_order = NULL,
   agg_network <- aggregate_network(flowpath, outlets, da_thresh, only_larger, post_mortem_file)
   
   agg_network$cat_sets <- 
-    unnest_flines(agg_network$cat_sets, 'set') %>% 
+    unnest_flines(agg_network$cat_sets, "set") %>% 
     left_join(select(divide, ID), by = c("set" = "ID")) %>% 
     st_as_sf() %>% 
     filter(!sf::st_is_empty(.)) %>%

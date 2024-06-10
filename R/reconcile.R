@@ -183,7 +183,7 @@ reconcile_catchment_divides <- function(catchment,
   fline_ref <- rename_geometry(fline_ref, "geom")
   fline_rec <- rename_geometry(fline_rec, "geom")
   
-  if(!is.null(fdr) & !is.null(fac)){
+  if(!is.null(fdr) && !is.null(fac)){
     
     fdr_temp <- fdr
     if(!inherits(fdr_temp, "SpatRaster")){

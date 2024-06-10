@@ -3,7 +3,10 @@ check7z = function (){
   tryCatch({
     system("7z", intern = TRUE)
   }, error = function(e) {
-    stop(simpleError("Please Install 7zip (Windows) or p7zip (MacOS/Unix). Choose accordingly:\n        Windows: https://www.7-zip.org/download.html\n        Mac: 'brew install p7zip' or 'sudo port install p7zip'\n        Linux: https://sourceforge.net/projects/p7zip/"))
+    stop(simpleError(paste0("Please Install 7zip (Windows) or p7zip (MacOS/Unix).",
+                            " Choose accordingly:\n        Windows: https://www.7-zip.org/download.html\n  ", 
+                            "      Mac: 'brew install p7zip' or 'sudo port install p7zip'\n        ", 
+                            "Linux: https://sourceforge.net/projects/p7zip/")))
   })
 }
 

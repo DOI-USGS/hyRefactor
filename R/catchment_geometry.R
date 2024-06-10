@@ -112,7 +112,8 @@ flowpaths_to_linestrings = function(flowpaths){
 #' @return sf object
 #' @export
 #' @importFrom dplyr select mutate filter group_by ungroup slice_max bind_rows n right_join rename slice_min
-#' @importFrom sf st_crs st_touches st_transform st_area st_make_valid st_intersection st_collection_extract st_cast st_intersects st_length st_filter st_union st_is_empty
+#' @importFrom sf st_crs st_touches st_transform st_area st_make_valid st_intersection 
+#' @importFrom sf st_collection_extract st_cast st_intersects st_length st_filter st_union st_is_empty
 #' @importFrom rmapshaper ms_explode ms_dissolve ms_simplify
 #' @importFrom nhdplusTools rename_geometry
 #' @importFrom rlang :=
@@ -149,7 +150,7 @@ clean_geometry <- function(catchments,
 
     # multi geometry catchments
     challenges = filter(in_cat, .data$ID %in% ids) %>%
-      mutate(tmpID = 1:n()) %>%
+      mutate(tmpID = seq_len(n())) %>%
       filter(!st_is_empty(.))
 
     # base cats: combo of biggest multi geom and single geom catchments
@@ -186,7 +187,7 @@ clean_geometry <- function(catchments,
 
     if(is.null(out)){
       in_cat = base_cats
-    } else if(!is.null(out) & nrow(out) != 0){
+    } else if(!is.null(out) && nrow(out) != 0){
       # ints are the LINSTRINGS of intersection between base_cats and frags
       ints = out %>%
         mutate(l = st_length(.)) %>%
@@ -203,16 +204,16 @@ clean_geometry <- function(catchments,
         group_by(.data$ID) %>%
         mutate(n = n()) %>%
         ungroup() %>%
-        nhdplusTools::rename_geometry('geometry') %>%
+        nhdplusTools::rename_geometry("geometry") %>%
         ungroup()
 
       if(nrow(tj) == 0){
         in_cat = base_cats
       } else {
         in_cat = suppressWarnings({
-          union_polygons(filter(tj, .data$n > 1) , 'ID') %>%
+          union_polygons(filter(tj, .data$n > 1) , "ID") %>%
             bind_rows(dplyr::select(filter(tj, .data$n == 1), .data$ID)) %>%
-            mutate(tmpID = 1:n())
+            mutate(tmpID = seq_len(n()))
         })
       }
 
@@ -225,7 +226,7 @@ clean_geometry <- function(catchments,
 
     if (length(dups) > 0) {
 
-      for (i in 1:length(dups)) {
+      for (i in seq_along(dups)) {
         here = filter(in_cat, .data$ID == dups[i])
 
         dissolve = slice_min(here, .data$areasqkm, with_ties = FALSE)
@@ -272,7 +273,7 @@ clean_geometry <- function(catchments,
   # we need to drop that column if it exists. We want to retain
   # any others that that came with the OG catchments
 
-  if('areasqkm' %in% names(catchments)){
+  if("areasqkm" %in% names(catchments)){
     catchments = select(catchments, -.data$areasqkm)
   }
 

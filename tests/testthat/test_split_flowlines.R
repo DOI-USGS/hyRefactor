@@ -121,7 +121,8 @@ test_that("split_flowlines at scale", {
     source(system.file("extdata", "new_hope_data.R", package = "hyRefactor"))
     
     new_hope_flowline <- right_join(select(new_hope_flowline, COMID, REACHCODE, FromMeas, ToMeas), 
-                                    suppressWarnings(prepare_nhdplus(new_hope_flowline, 0, 0, 0, FALSE, warn = FALSE)), by = "COMID")
+                                    suppressWarnings(prepare_nhdplus(new_hope_flowline, 0, 0, 0, 
+                                                                     FALSE, warn = FALSE)), by = "COMID")
     
     split <- split_flowlines(suppressWarnings(st_cast(st_transform(new_hope_flowline, 5070), "LINESTRING")), 20000000)
     
@@ -164,4 +165,3 @@ test_that("rescale", {
   expect_equal(hyRefactor:::rf(25, 0, 50), 50)
   expect_error(hyRefactor:::rf(75, 0, 50), "m must be between f and t")
 })
-

@@ -27,11 +27,11 @@ find_upstream <- function(row_col, fdr_matrix) {
   col <- row_col[2]
 
   # Hacking around the stop conditions in these three if statements.
-  if (is.na(row) | is.na(col)) {
+  if (is.na(row) || is.na(col)) {
     return()
   }
 
-  if (row <= 0 | row > nrow(fdr_matrix) | col <= 0 | col > ncol(fdr_matrix)) {
+  if (row <= 0 || row > nrow(fdr_matrix) || col <= 0 || col > ncol(fdr_matrix)) {
     return()
   }
 
@@ -156,7 +156,7 @@ trace_upstream <- function(start_point, cat, fdr, fac_matrix, fdr_matrix) {
 
   xy_nodes <- rbind(start_point[[1]], xy_nodes)
   
-  st_sfc(st_linestring(xy_nodes[nrow(xy_nodes):1, ]), crs = st_crs(start_point))
+  st_sfc(st_linestring(xy_nodes[rev(seq_len(nrow(xy_nodes))), ]), crs = st_crs(start_point))
 }
 
 #' @title Split Catchment Divides
@@ -216,7 +216,7 @@ split_catchment_divide <- function(catchment, fline, fdr, fac, lr = FALSE,
   
   return_cats <- list()
 
-  if (nrow(fdr_matrix) != nrow(fac_matrix) | ncol(fdr_matrix) != ncol(fac_matrix)) {
+  if (nrow(fdr_matrix) != nrow(fac_matrix) || ncol(fdr_matrix) != ncol(fac_matrix)) {
     stop("flow direction and flow accumulation must be the same size")
   }
 
@@ -311,7 +311,7 @@ split_catchment_divide <- function(catchment, fline, fdr, fac, lr = FALSE,
 
 split_lr <- function(cat, fline, fdr, fac_matrix, fdr_matrix) {
   
-  out <- lapply(c(1:nrow(fline)), function(x, cat, fline, fdr, fac_matrix, fdr_matrix) {
+  out <- lapply(c(seq_len(nrow(fline))), function(x, cat, fline, fdr, fac_matrix, fdr_matrix) {
     
     line <- st_cast(st_geometry(fline[x, ]), "LINESTRING")
     
@@ -419,7 +419,7 @@ check_proj <- function(catchment, fline, fdr = NULL) {
   if(!is.null(fdr)) {
 
     proj <- st_crs(fdr)
-    if (st_crs(catchment) != st_crs(proj) |
+    if (st_crs(catchment) != st_crs(proj) ||
         st_crs(fline) != st_crs(proj)) {
       stop(er)
     }
@@ -490,7 +490,7 @@ trace_downstream <- function(start_point, fdr, distance = 10000) {
   local_dir <- fdr_matrix[sti]
   
   # stop if at distance or local direction is NA
-  while(d <= distance & !is.na(local_dir)) {
+  while(d <= distance && !is.na(local_dir)) {
 
     # add row col to track
     track[d, ] <- sti

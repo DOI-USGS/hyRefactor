@@ -1,6 +1,7 @@
 context("coastal aggregation")
 
-# bbox <- sf::st_bbox(c(xmin = -124.383377, ymin = 39.765797, xmax = -123.705239, ymax = 40.377652), crs = sf::st_crs(4326))
+# bbox <- sf::st_bbox(c(xmin = -124.383377, ymin = 39.765797, xmax = -123.705239, 
+# ymax = 40.377652), crs = sf::st_crs(4326))
 # plot_nhdplus(bbox = bbox, gpkg = "tests/testthat/data/coastal.gpkg", overwrite = TRUE)
 
 source_gpkg <- list.files(pattern = "coastal.gpkg$", recursive = TRUE, full.names = TRUE)
@@ -53,7 +54,10 @@ test_that("basic coastal aggregation", {
   
   coastal <- nhd[nhd$FTYPE == "Coastline", ]
   
-  nhd <- dplyr::filter(nhd, COMID %in% nhdplusTools::prepare_nhdplus(nhd, 0, 0, 0, FALSE, skip_toCOMID = TRUE, warn = FALSE)$COMID)
+  nhd <- dplyr::filter(nhd, COMID %in% 
+                         nhdplusTools::prepare_nhdplus(nhd, 0, 0, 0, FALSE, 
+                                                       skip_toCOMID = TRUE, 
+                                                       warn = FALSE)$COMID)
   
   networks <- do.call(c, sapply(dplyr::filter(nhd, TerminalFl == 1)$COMID, 
                                 function(x, nhd) nhdplusTools::get_UT(network = nhd, x), nhd = nhd))

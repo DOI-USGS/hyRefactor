@@ -17,7 +17,8 @@ refactor_nhdplus(nhdplus_flines = test_fline,
                  out_reconciled = tr, 
                  three_pass = TRUE, 
                  purge_non_dendritic = FALSE, 
-                 # exclude_cats = POIs$COMID, # Can bring this back once we don't have POIs on flowlines without catchments.
+                 # exclude_cats = POIs$COMID, # Can bring this back once we 
+                 # don't have POIs on flowlines without catchments.
                  warn = TRUE)
 
 test_fline_ref <- sf::read_sf("~/temp/collapsed.gpkg", "collapsed")
@@ -30,7 +31,8 @@ test_fline_ref <- st_transform(test_fline_ref, crs)
 test_cat <- st_transform(test_cat, crs)
 
 test_fline_rec <- test_fline_rec[grepl("4288455", test_fline_rec$member_COMID), ]
-test_fline_ref <- test_fline_ref[test_fline_ref$COMID %in% c("4288455.1", "4288455.2", "4288455.3", "4288725", "4288717"), ]
+test_fline_ref <- test_fline_ref[test_fline_ref$COMID %in% 
+                                   c("4288455.1", "4288455.2", "4288455.3", "4288725", "4288717"), ]
 test_cat <- test_cat[test_cat$FEATUREID %in% c(4288455, 4288725, 4288717), ]
   
 reconciled_cats <- reconcile_catchment_divides(test_cat, test_fline_ref,

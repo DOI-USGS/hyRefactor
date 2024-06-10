@@ -69,7 +69,7 @@ plot(st_geometry(sample_catchment))
 plot(sample_flowline["COMID"], add = TRUE)
 
 plot(walker_fdr)
-plot( walker_fac)
+plot(walker_fac)
 ```
 
 Now we can run the `split_catchment_divide()` function which is designed to take one catchment and its associated (split) flowlines. The split flowlines are the "refactored" but not "reconciled" output of the `nhdplus_refactor()` function we ran above. Here we run the `split_catchment()` function and plot up the resulting data to show what it did.
@@ -140,7 +140,7 @@ NOTE: left / right split is not function in v0.4.8
 
 ```{r split}
 
-split_catchments <- do.call(c, lapply(c(1:nrow(aggregated$cat_sets)), 
+split_catchments <- do.call(c, lapply(c(seq_len(nrow(aggregated$cat_sets))), 
                                       function(g, ac, af, fdr, fac) {
                                         split_catchment_divide(ac[g, ], af[g, ], 
                                                                fdr, fac, lr = FALSE)
@@ -214,7 +214,6 @@ aggregate_lookup_catchment <- dplyr::select(st_drop_geometry(aggregated$cat_sets
   dplyr::left_join(refactor_lookup, by = "NHDPlusV2_COMID") %>%
   dplyr::left_join(aggregate_lookup_fline, by = "reconciled_ID") %>%
   dplyr::left_join(aggregate_lookup_catchment, by = "reconciled_ID"))
-
 ```
 
 Ta Da!! Have fun and [report bugs here](https://github.com/dblodgett-usgs/nhdplusTools/issues). 

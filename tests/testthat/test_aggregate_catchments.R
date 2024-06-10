@@ -62,7 +62,7 @@ aggregated_fline <- sf::st_transform(aggregated_fline, crs)
 
 aggregated_cat <- aggregated_cat[match(aggregated_fline$ID, aggregated_cat$ID), ]
 
-new_geom <- do.call(c, lapply(c(1:nrow(aggregated_cat)), function(g) {
+new_geom <- do.call(c, lapply(c(seq_len(nrow(aggregated_cat))), function(g) {
   split_catchment_divide(catchment = aggregated_cat[g, ], 
                          fline = aggregated_fline[g, ], 
                          fdr = walker_fdr, 
@@ -83,8 +83,9 @@ aggregated <- aggregate_catchments(flowpath = walker_fline_rec,
 aggregated_fline <- aggregated$fline_sets
 aggregated_cat <- aggregated$cat_sets
 
-expect_equal(sort(aggregated_cat$ID), sort(get_id(c("5329321", "5329385", "5329313", "5329843", "5329339.1", "5329339.3",
-                                         "5329303"))))
+expect_equal(sort(aggregated_cat$ID), 
+             sort(get_id(c("5329321", "5329385", "5329313", "5329843", 
+                           "5329339.1", "5329339.3", "5329303"))))
 
 expect_true(length(filter(aggregated_cat, ID == 23)$set[[1]]) == 5, "got the wrong number in catchment set")
 

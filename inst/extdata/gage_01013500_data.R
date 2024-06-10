@@ -52,3 +52,4 @@
 # 
 # write_sf(raw, file.path(extdata, "gage_01013500.gpkg"), "raw-divides")
 # unlink(list("refactor.gpkg", "reconcile.gpkg"))
+# nolint end

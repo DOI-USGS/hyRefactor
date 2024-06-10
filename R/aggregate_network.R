@@ -410,7 +410,7 @@ prep_flowpath <- function(flowpath) {
 
 prep_outlets <- function(outlets, flowpath) {
   outlets <- left_join(outlets, select(flowpath, .data$ID, .data$id), by = "ID")
-  outlets$set <- 1:nrow(outlets)
+  outlets$set <- seq_len(nrow(outlets))
   outlets
 }
 
