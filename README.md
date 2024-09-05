@@ -2,11 +2,7 @@
 
 ## Tools for Manipulating the NHDPlus Network in Preparation for Hydrologic Modeling
 
-The hyRefactor package was developed over a considerable period of time as part of a broad research project to develop a unified hydrofabric for the U.S. Geological Survey National Water Census and National Weather Service National Water Model. Work on this specific package has moved to a new development space under https://github.com/noaa-owp/hydrofab. That package will be released as a USGS data release when ready.
-
-Software in this package has been rigorously tested (90% code coverage shown in [v0.4.8_coverage.html](v0.4.8_coverage.html)) and results of its use have been evaluated extensively. Any use outside of the National Hydrologic Geospatial Fabric workflow it was developed for may produce unexpected results.
-
-Documentation in the package was developed as a best effort by the authors while the package was in development. Some exported functions may have limited documentation in which case package code should be inspected to understand nuances of the implementation.
+The purpose of this software release is to document a version of a methodology and associated implementing software used to create a separate Data Release (https://www.sciencebase.gov/catalog/item/60be0e53d34e86b93891012b). This software was used to make derivatives of the features in the NHDPlus geospatial dataset for use in hydrologic model applications. It is not intended for users to deploy/use and may produce unexpected results outside the workflow and environment in which it was implemented. For users seeking to deploy a version of this software, please see https://github.com/noaa-owp/hydrofab.
 
 ### Installation:
 
