@@ -2,7 +2,7 @@
 
 ## Tools for Manipulating the NHDPlus Network in Preparation for Hydrologic Modeling
 
-This software was used to make derivatives of the features in the NHDPlus geospatial dataset for use in hydrologic model applications. It is not intended for users to deploy/use and may produce unexpected results outside the workflow and environment in which it was implemented. For users seeking to deploy a version of this software, please see https://github.com/noaa-owp/hydrofab. The purpose of the officil software release established in 2024 is to document the methodology and associated software used to create: (https://www.sciencebase.gov/catalog/item/60be0e53d34e86b93891012b).
+This software was used to make derivatives of the features in the NHDPlusV2 geospatial dataset for use in hydrologic model applications. It is not intended for users to deploy/use and may produce unexpected results outside the workflow and environment in which it was implemented. For users seeking to deploy a version of this software, please see https://github.com/noaa-owp/hydrofab. The purpose of the official software release established in 2024 is to document the methodology and associated software used to create: (https://www.sciencebase.gov/catalog/item/60be0e53d34e86b93891012b).
 
 ### Installation:
 
