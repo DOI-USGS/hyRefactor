@@ -1,6 +1,6 @@
 # hyRefactor
 
-Blodgett, D., 2024, hyRefactor: Tools for Manipulating the NHDPlus Network in Preparation for Hydrologic Modeling Version v0.4.11 U.S. Geological Survey software release, https://doi.org/10.5066/P9EP9UQZ
+Blodgett, D., Johnson, J.M., 2024, hyRefactor: Tools for Manipulating the NHDPlus Network in Preparation for Hydrologic Modeling Version v0.4.11 U.S. Geological Survey software release, https://doi.org/10.5066/P9EP9UQZ
 
 ## Tools for Manipulating the NHDPlus Network in Preparation for Hydrologic Modeling
 
