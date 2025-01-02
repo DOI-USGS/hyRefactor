@@ -1,5 +1,7 @@
 # hyRefactor
 
+Blodgett, D., 2024, hyRefactor: Tools for Manipulating the NHDPlus Network in Preparation for Hydrologic Modeling Version v0.4.11 U.S. Geological Survey software release, https://doi.org/10.5066/P9EP9UQZ
+
 ## Tools for Manipulating the NHDPlus Network in Preparation for Hydrologic Modeling
 
 This software was used to make derivatives of the features in the NHDPlusV2 geospatial dataset for use in hydrologic model applications. It is not intended for users to deploy/use and may produce unexpected results outside the workflow and environment in which it was implemented. For users seeking to deploy a version of this software, please see https://github.com/noaa-owp/hydrofab. The purpose of the official software release established in 2024 is to document the methodology and associated software used to create: (https://www.sciencebase.gov/catalog/item/60be0e53d34e86b93891012b).
