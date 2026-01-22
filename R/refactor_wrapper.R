@@ -219,12 +219,12 @@ refactor  = function (gpkg = NULL,
       ungroup()
 
     if (nrow(check_dups_poi) > 1) {
-      hydrofab::hyaggregate_log("WARN", "Double-check for double POIs")
+      hyRefactorhyaggregate_log("WARN", "Double-check for double POIs")
     } else {
-      hydrofab::hyaggregate_log("SUCCESS", "No double POIs detected")
+      hyRefactorhyaggregate_log("SUCCESS", "No double POIs detected")
     }
 
-    hydrofab::hyaggregate_log("SUCCESS", "Flowlines successfully refactored.")
+    hyRefactorhyaggregate_log("SUCCESS", "Flowlines successfully refactored.")
 
   } else {
     final_outlets = NULL

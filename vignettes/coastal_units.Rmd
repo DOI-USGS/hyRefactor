@@ -23,8 +23,8 @@ options("rgdal_show_exportToProj4_warnings"="none",
         rmarkdown.html_vignette.check_title = FALSE)
 library(magrittr)
 sf::sf_use_s2(FALSE)
-fdr_path <- "../../gfv2/workspace/data/fdrfac/NHDPlusCA/NHDPlus18/NHDPlusFdrFac18c/fdr/"
-fac_path <- "../../gfv2/workspace/data/fdrfac/NHDPlusCA/NHDPlus18/NHDPlusFdrFac18c/fac/"
+fdr_path <- "../../_reference_fabric/reference-hydrofabric/workspace/data/fdrfac/NHDPlusCA/NHDPlus18/NHDPlusFdrFac18c/fdr/"
+fac_path <- "../../_reference_fabric/reference-hydrofabric/workspace/data/fdrfac/NHDPlusCA/NHDPlus18/NHDPlusFdrFac18c/fac/"
 ```
 
 This article demonstrates how to work with coastal catchments and small coastal basins in an hyRefactor workflow.

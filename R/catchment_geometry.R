@@ -137,9 +137,6 @@ clean_geometry <- function(catchments,
     try(sys <- is.character(check_sys_mapshaper(verbose = FALSE)))
   }
   
-  # set crs variable to crs of catchments
-  if(!is.null(crs)){  crs = st_crs(catchments)  }
-  
   catchments = lwgeom::st_snap_to_grid(st_transform(catchments, crs), size = grid)
   
   # cast MPs to POLYGONS and add featureid count column

@@ -299,7 +299,7 @@ split_by_length <- function(lines, max_length, event_split_points, avoid) {
   
   if(is.null(max_length)) return(data.frame())
   
-  lines <- sf::st_drop_geometry(add_length(lines))
+  lines <- sf::st_drop_geometry(add_lengthkm(lines))
   
   if(nrow(event_split_points) > 0) {
     event_split_points <- dplyr::left_join(event_split_points, 

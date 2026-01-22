@@ -19,9 +19,9 @@
 
 get_boundaries = function(type = "vpu"){
   if(tolower(type) == "vpu"){
-    hydrofab::vpu_boundaries
+    hyRefactorvpu_boundaries
   } else if(tolower(type) == "rpu"){
-    hydrofab::rpu_boundaries
+    hyRefactorrpu_boundaries
   } else {
     stop("Type must be either: rpu or vpu", call. = FALSE)
   }

@@ -117,7 +117,7 @@ expect_true(length(aggregated_cat$set[[2]]) == 101, "got the wrong number in cat
 
 source(system.file("extdata", "new_hope_data.R", package = "hyRefactor"))
 
-new_hope_catchment_rec <- hydrofab::clean_geometry(
+new_hope_catchment_rec <- hyRefactor::clean_geometry(
   nhdplusTools:::check_valid(new_hope_catchment_rec), 
   keep = NULL, crs = 5070, sys = FALSE)
 
@@ -175,7 +175,7 @@ test_that("new_hope aggregate", {
   new_hope_fline_rec$TotDASqKM <-
     nhdplusTools::calculate_total_drainage_area(
       dplyr::rename(sf::st_set_geometry(new_hope_fline_rec, NULL),
-                                         area = area_sqkm))
+                                         area = TotDASqKM))
 
   aggregated <- aggregate_to_outlets(flowpath = new_hope_fline_rec, 
                                      divide = new_hope_catchment_rec, 
@@ -206,7 +206,7 @@ test_that("new_hope aggregate", {
 
   new_hope_fline_rec[["TotDASqKM"]] <-
     nhdplusTools::calculate_total_drainage_area(dplyr::rename(sf::st_set_geometry(new_hope_fline_rec, NULL),
-                                         area = area_sqkm))
+                                                              area = area_sqkm))
 
   # HU12 FPP st_joined to get these
   outlets <- data.frame(ID = get_id(c("8894358", "8894344", "8894326",

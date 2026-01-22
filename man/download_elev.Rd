@@ -7,7 +7,7 @@
 download_elev(product, out_dir, regions = NULL)
 }
 \arguments{
-\item{product}{character DEM, hydroDEM, or FDRFAC.}
+\item{product}{character DEM, or FDRFAC.}
 
 \item{out_dir}{path to directory to store output.}
 

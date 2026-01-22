@@ -184,7 +184,7 @@ new_hope_pois <- sf::read_sf(nhpgpkgpoi, "mapped_POIs")
 # write_sf(cat_rec, new_hope_refactor, "refactored_divides")
 # 
 # refactor_lookup <- read_sf(
-#   hydrofab::generate_lookup_table(refactored_gpkg = new_hope_refactor,
+#   hyRefactorgenerate_lookup_table(refactored_gpkg = new_hope_refactor,
 #                                                    reconciled_layer = "refactored_divides"),
 #   "lookup_table")
 # 

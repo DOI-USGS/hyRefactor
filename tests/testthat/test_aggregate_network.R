@@ -68,7 +68,7 @@ test_that("missing outlet", {
   
   net <- readRDS(list.files(pattern = "test_outlets.rds", full.names = TRUE, recursive = TRUE))
   
-  outlets <- hydrofab:::make_outlets_valid(outlets, net)
+  outlets <- hyRefactor:make_outlets_valid(outlets, net)
   
   expect_true(21047070 %in% outlets$ID)
 })

@@ -11,7 +11,7 @@ check7z = function (){
 }
 
 #' Download Elevation and Derivatives
-#' @param product character DEM, hydroDEM, or FDRFAC.  
+#' @param product character DEM, or FDRFAC.  
 #' @param out_dir path to directory to store output.
 #' @param regions character vector of two digit hydrologic 
 #' @importFrom rvest read_html html_nodes html_attr
@@ -21,7 +21,7 @@ download_elev <- function(product, out_dir, regions = NULL) {
   
   dev_null <- check7z()
   
-  allowable <- c("DEM" = ".*NEDSnapshot.*", "hydroDEM" = ".*HydroDem.*", "FDRFAC" = ".*FdrFac.*")
+  allowable <- c("DEM" = ".*NEDSnapshot.*", "FDRFAC" = ".*FdrFac.*")
   
   if(!all(product %in% names(allowable))) stop(paste("product must be one of", allowable))
   
@@ -32,43 +32,86 @@ download_elev <- function(product, out_dir, regions = NULL) {
   
   # NHDPlusV2nn_<dd>_<VPUid>_<RPUid>_componentname_<vv>
   
-  file_list <- c("NHDPlusV21_CA_18_18a_FdrFac_01.7z", "NHDPlusV21_CA_18_18b_FdrFac_01.7z", 
-                 "NHDPlusV21_CA_18_18c_FdrFac_01.7z", "NHDPlusV21_CI_21_21a_FdrFac_01.7z", 
-                 "NHDPlusV21_CI_21_21b_FdrFac_01.7z", "NHDPlusV21_CI_21_21c_FdrFac_01.7z", 
-                 "NHDPlusV21_CO_14_14a_FdrFac_01.7z", "NHDPlusV21_CO_14_14b_FdrFac_01.7z", 
-                 "NHDPlusV21_CO_15_15a_FdrFac_01.7z", "NHDPlusV21_CO_15_15b_FdrFac_01.7z", 
-                 "NHDPlusV21_GB_16_16a_FdrFac_01.7z", "NHDPlusV21_GB_16_16b_FdrFac_01.7z", 
-                 "NHDPlusV21_GL_04_04a_FdrFac_03.7z", "NHDPlusV21_GL_04_04b_FdrFac_03.7z", 
-                 "NHDPlusV21_GL_04_04c_FdrFac_03.7z", "NHDPlusV21_GL_04_04d_FdrFac_03.7z", 
-                 "NHDPlusV21_HI_20_20a_FdrFac_01.7z", "NHDPlusV21_HI_20_20b_FdrFac_01.7z", 
-                 "NHDPlusV21_HI_20_20c_FdrFac_01.7z", "NHDPlusV21_HI_20_20d_FdrFac_01.7z", 
-                 "NHDPlusV21_HI_20_20e_FdrFac_01.7z", "NHDPlusV21_HI_20_20f_FdrFac_01.7z", 
-                 "NHDPlusV21_HI_20_20g_FdrFac_01.7z", "NHDPlusV21_HI_20_20h_FdrFac_01.7z", 
-                 "NHDPlusV21_MA_02_02a_FdrFac_01.7z", "NHDPlusV21_MA_02_02b_FdrFac_01.7z", 
-                 "NHDPlusV21_MS_05_05a_FdrFac_01.7z", "NHDPlusV21_MS_05_05b_FdrFac_01.7z", 
-                 "NHDPlusV21_MS_05_05c_FdrFac_01.7z", "NHDPlusV21_MS_05_05d_FdrFac_01.7z", 
-                 "NHDPlusV21_MS_06_06a_FdrFac_03.7z", "NHDPlusV21_MS_07_07a_FdrFac_01.7z", 
-                 "NHDPlusV21_MS_07_07b_FdrFac_01.7z", "NHDPlusV21_MS_07_07c_FdrFac_01.7z", 
-                 "NHDPlusV21_MS_08_03g_FdrFac_01.7z", "NHDPlusV21_MS_08_08a_FdrFac_01.7z", 
-                 "NHDPlusV21_MS_08_08b_FdrFac_01.7z", "NHDPlusV21_MS_10L_10a_FdrFac_01.7z", 
-                 "NHDPlusV21_MS_10L_10b_FdrFac_01.7z", "NHDPlusV21_MS_10L_10c_FdrFac_01.7z", 
-                 "NHDPlusV21_MS_10L_10d_FdrFac_01.7z", "NHDPlusV21_MS_10U_10e_FdrFac_02.7z", 
-                 "NHDPlusV21_MS_10U_10f_FdrFac_02.7z", "NHDPlusV21_MS_10U_10g_FdrFac_02.7z", 
-                 "NHDPlusV21_MS_10U_10h_FdrFac_02.7z", "NHDPlusV21_MS_10U_10i_FdrFac_02.7z", 
-                 "NHDPlusV21_MS_11_11a_FdrFac_01.7z", "NHDPlusV21_MS_11_11b_FdrFac_01.7z", 
-                 "NHDPlusV21_MS_11_11c_FdrFac_01.7z", "NHDPlusV21_MS_11_11d_FdrFac_01.7z", 
-                 "NHDPlusV21_NE_01_01a_FdrFac_01.7z", "NHDPlusV21_PI_22AS_22c_FdrFac_01.7z", 
-                 "NHDPlusV21_PI_22GU_22a_FdrFac_01.7z", "NHDPlusV21_PI_22MP_22b_FdrFac_01.7z", 
-                 "NHDPlusV21_PN_17_17a_FdrFac_01.7z", "NHDPlusV21_PN_17_17b_FdrFac_01.7z", 
-                 "NHDPlusV21_PN_17_17c_FdrFac_01.7z", "NHDPlusV21_PN_17_17d_FdrFac_01.7z", 
-                 "NHDPlusV21_RG_13_13a_FdrFac_01.7z", "NHDPlusV21_RG_13_13b_FdrFac_01.7z", 
-                 "NHDPlusV21_RG_13_13c_FdrFac_01.7z", "NHDPlusV21_RG_13_13d_FdrFac_01.7z", 
-                 "NHDPlusV21_SA_03N_03a_FdrFac_01.7z", "NHDPlusV21_SA_03N_03b_FdrFac_01.7z", 
-                 "NHDPlusV21_SA_03S_03c_FdrFac_01.7z", "NHDPlusV21_SA_03S_03d_FdrFac_01.7z", 
-                 "NHDPlusV21_SA_03W_03e_FdrFac_01.7z", "NHDPlusV21_SA_03W_03f_FdrFac_01.7z", 
-                 "NHDPlusV21_SR_09_09a_FdrFac_01.7z", "NHDPlusV21_TX_12_12a_FdrFac_01.7z", 
-                 "NHDPlusV21_TX_12_12b_FdrFac_01.7z", "NHDPlusV21_TX_12_12c_FdrFac_01.7z", 
-                 "NHDPlusV21_TX_12_12d_FdrFac_01.7z")
+  if(product == "FDRFAC") {
+    
+    file_list <- c("NHDPlusV21_CA_18_18a_FdrFac_01.7z", "NHDPlusV21_CA_18_18b_FdrFac_01.7z", 
+                   "NHDPlusV21_CA_18_18c_FdrFac_01.7z", "NHDPlusV21_CI_21_21a_FdrFac_01.7z", 
+                   "NHDPlusV21_CI_21_21b_FdrFac_01.7z", "NHDPlusV21_CI_21_21c_FdrFac_01.7z", 
+                   "NHDPlusV21_CO_14_14a_FdrFac_01.7z", "NHDPlusV21_CO_14_14b_FdrFac_01.7z", 
+                   "NHDPlusV21_CO_15_15a_FdrFac_01.7z", "NHDPlusV21_CO_15_15b_FdrFac_01.7z", 
+                   "NHDPlusV21_GB_16_16a_FdrFac_01.7z", "NHDPlusV21_GB_16_16b_FdrFac_01.7z", 
+                   "NHDPlusV21_GL_04_04a_FdrFac_03.7z", "NHDPlusV21_GL_04_04b_FdrFac_03.7z", 
+                   "NHDPlusV21_GL_04_04c_FdrFac_03.7z", "NHDPlusV21_GL_04_04d_FdrFac_03.7z", 
+                   "NHDPlusV21_HI_20_20a_FdrFac_01.7z", "NHDPlusV21_HI_20_20b_FdrFac_01.7z", 
+                   "NHDPlusV21_HI_20_20c_FdrFac_01.7z", "NHDPlusV21_HI_20_20d_FdrFac_01.7z", 
+                   "NHDPlusV21_HI_20_20e_FdrFac_01.7z", "NHDPlusV21_HI_20_20f_FdrFac_01.7z", 
+                   "NHDPlusV21_HI_20_20g_FdrFac_01.7z", "NHDPlusV21_HI_20_20h_FdrFac_01.7z", 
+                   "NHDPlusV21_MA_02_02a_FdrFac_01.7z", "NHDPlusV21_MA_02_02b_FdrFac_01.7z", 
+                   "NHDPlusV21_MS_05_05a_FdrFac_01.7z", "NHDPlusV21_MS_05_05b_FdrFac_01.7z", 
+                   "NHDPlusV21_MS_05_05c_FdrFac_01.7z", "NHDPlusV21_MS_05_05d_FdrFac_01.7z", 
+                   "NHDPlusV21_MS_06_06a_FdrFac_03.7z", "NHDPlusV21_MS_07_07a_FdrFac_01.7z", 
+                   "NHDPlusV21_MS_07_07b_FdrFac_01.7z", "NHDPlusV21_MS_07_07c_FdrFac_01.7z", 
+                   "NHDPlusV21_MS_08_03g_FdrFac_01.7z", "NHDPlusV21_MS_08_08a_FdrFac_01.7z", 
+                   "NHDPlusV21_MS_08_08b_FdrFac_01.7z", "NHDPlusV21_MS_10L_10a_FdrFac_01.7z", 
+                   "NHDPlusV21_MS_10L_10b_FdrFac_01.7z", "NHDPlusV21_MS_10L_10c_FdrFac_01.7z", 
+                   "NHDPlusV21_MS_10L_10d_FdrFac_01.7z", "NHDPlusV21_MS_10U_10e_FdrFac_02.7z", 
+                   "NHDPlusV21_MS_10U_10f_FdrFac_02.7z", "NHDPlusV21_MS_10U_10g_FdrFac_02.7z", 
+                   "NHDPlusV21_MS_10U_10h_FdrFac_02.7z", "NHDPlusV21_MS_10U_10i_FdrFac_02.7z", 
+                   "NHDPlusV21_MS_11_11a_FdrFac_01.7z", "NHDPlusV21_MS_11_11b_FdrFac_01.7z", 
+                   "NHDPlusV21_MS_11_11c_FdrFac_01.7z", "NHDPlusV21_MS_11_11d_FdrFac_01.7z", 
+                   "NHDPlusV21_NE_01_01a_FdrFac_01.7z", "NHDPlusV21_PI_22AS_22c_FdrFac_01.7z", 
+                   "NHDPlusV21_PI_22GU_22a_FdrFac_01.7z", "NHDPlusV21_PI_22MP_22b_FdrFac_01.7z", 
+                   "NHDPlusV21_PN_17_17a_FdrFac_01.7z", "NHDPlusV21_PN_17_17b_FdrFac_01.7z", 
+                   "NHDPlusV21_PN_17_17c_FdrFac_01.7z", "NHDPlusV21_PN_17_17d_FdrFac_01.7z", 
+                   "NHDPlusV21_RG_13_13a_FdrFac_01.7z", "NHDPlusV21_RG_13_13b_FdrFac_01.7z", 
+                   "NHDPlusV21_RG_13_13c_FdrFac_01.7z", "NHDPlusV21_RG_13_13d_FdrFac_01.7z", 
+                   "NHDPlusV21_SA_03N_03a_FdrFac_01.7z", "NHDPlusV21_SA_03N_03b_FdrFac_01.7z", 
+                   "NHDPlusV21_SA_03S_03c_FdrFac_01.7z", "NHDPlusV21_SA_03S_03d_FdrFac_01.7z", 
+                   "NHDPlusV21_SA_03W_03e_FdrFac_01.7z", "NHDPlusV21_SA_03W_03f_FdrFac_01.7z", 
+                   "NHDPlusV21_SR_09_09a_FdrFac_01.7z", "NHDPlusV21_TX_12_12a_FdrFac_01.7z", 
+                   "NHDPlusV21_TX_12_12b_FdrFac_01.7z", "NHDPlusV21_TX_12_12c_FdrFac_01.7z", 
+                   "NHDPlusV21_TX_12_12d_FdrFac_01.7z")
+  } else {
+    
+    file_list <- c("NHDPlusV21_CA_18_18a_NEDSnapshot_01.7z", "NHDPlusV21_CA_18_18b_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_CA_18_18c_NEDSnapshot_01.7z", "NHDPlusV21_CI_21_21a_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_CI_21_21b_NEDSnapshot_01.7z", "NHDPlusV21_CI_21_21c_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_CO_14_14a_NEDSnapshot_01.7z", "NHDPlusV21_CO_14_14b_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_CO_15_15a_NEDSnapshot_01.7z", "NHDPlusV21_CO_15_15b_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_GB_16_16a_NEDSnapshot_01.7z", "NHDPlusV21_GB_16_16b_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_GL_04_04a_NEDSnapshot_03.7z", "NHDPlusV21_GL_04_04b_NEDSnapshot_03.7z", 
+                   "NHDPlusV21_GL_04_04c_NEDSnapshot_03.7z", "NHDPlusV21_GL_04_04d_NEDSnapshot_03.7z", 
+                   "NHDPlusV21_HI_20_20a_NEDSnapshot_01.7z", "NHDPlusV21_HI_20_20b_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_HI_20_20c_NEDSnapshot_01.7z", "NHDPlusV21_HI_20_20d_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_HI_20_20e_NEDSnapshot_01.7z", "NHDPlusV21_HI_20_20f_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_HI_20_20g_NEDSnapshot_01.7z", "NHDPlusV21_HI_20_20h_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_MA_02_02a_NEDSnapshot_01.7z", "NHDPlusV21_MA_02_02b_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_MS_05_05a_NEDSnapshot_01.7z", "NHDPlusV21_MS_05_05b_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_MS_05_05c_NEDSnapshot_01.7z", "NHDPlusV21_MS_05_05d_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_MS_06_06a_NEDSnapshot_01.7z", "NHDPlusV21_MS_07_07a_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_MS_07_07b_NEDSnapshot_01.7z", "NHDPlusV21_MS_07_07c_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_MS_08_03g_NEDSnapshot_01.7z", "NHDPlusV21_MS_08_08a_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_MS_08_08b_NEDSnapshot_01.7z", "NHDPlusV21_MS_10L_10a_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_MS_10L_10b_NEDSnapshot_01.7z", "NHDPlusV21_MS_10L_10c_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_MS_10L_10d_NEDSnapshot_01.7z", "NHDPlusV21_MS_10U_10e_NEDSnapshot_03.7z", 
+                   "NHDPlusV21_MS_10U_10f_NEDSnapshot_03.7z", "NHDPlusV21_MS_10U_10g_NEDSnapshot_03.7z", 
+                   "NHDPlusV21_MS_10U_10h_NEDSnapshot_03.7z", "NHDPlusV21_MS_10U_10i_NEDSnapshot_03.7z", 
+                   "NHDPlusV21_MS_11_11a_NEDSnapshot_02.7z", "NHDPlusV21_MS_11_11b_NEDSnapshot_02.7z", 
+                   "NHDPlusV21_MS_11_11c_NEDSnapshot_02.7z", "NHDPlusV21_MS_11_11d_NEDSnapshot_02.7z", 
+                   "NHDPlusV21_NE_01_01a_NEDSnapshot_01.7z", "NHDPlusV21_PI_22AS_22c_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_PI_22GU_22a_NEDSnapshot_01.7z", "NHDPlusV21_PI_22MP_22b_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_PN_17_17a_NEDSnapshot_01.7z", "NHDPlusV21_PN_17_17b_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_PN_17_17c_NEDSnapshot_01.7z", "NHDPlusV21_PN_17_17d_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_RG_13_13a_NEDSnapshot_01.7z", "NHDPlusV21_RG_13_13b_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_RG_13_13c_NEDSnapshot_01.7z", "NHDPlusV21_RG_13_13d_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_SA_03N_03a_NEDSnapshot_01.7z", "NHDPlusV21_SA_03N_03b_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_SA_03S_03c_NEDSnapshot_01.7z", "NHDPlusV21_SA_03S_03d_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_SA_03W_03e_NEDSnapshot_01.7z", "NHDPlusV21_SA_03W_03f_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_SR_09_09a_NEDSnapshot_01.7z", "NHDPlusV21_TX_12_12a_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_TX_12_12b_NEDSnapshot_01.7z", "NHDPlusV21_TX_12_12c_NEDSnapshot_01.7z", 
+                   "NHDPlusV21_TX_12_12d_NEDSnapshot_01.7z")
+    
+  }
   
   urls <- sapply(file_list, \(x) {
     spl <- strsplit(x, "_")[[1]]
