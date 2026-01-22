@@ -27,37 +27,62 @@ download_elev <- function(product, out_dir, regions = NULL) {
   
   dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
   
-  root <- "http://www.horizon-systems.com"
-  base <- "/NHDPlusData/NHDPlusV21/Data/"
+  root <- "https://dmap-data-commons-ow.s3.amazonaws.com"
+  base <- "/NHDPlusV21/Data/"
   
-  check <- paste0(root, base)
-  found <- c()
-  i <- 1
+  # NHDPlusV2nn_<dd>_<VPUid>_<RPUid>_componentname_<vv>
   
-  while(i <= length(check)) {
-    url <- check[i]
-    
-    pg <- rvest::read_html(url)
-    
-    pg_links <- paste0(url, html_attr(html_nodes(pg, "a"), "href"))
-    
-    pg_links <- pg_links[!pg_links %in% check]
-    
-    check <- c(check, pg_links[!grepl("[.][.]/", pg_links) & grepl(".*/$", pg_links)])
-    
-    found <- c(found, pg_links[grepl(paste(allowable[product], collapse = "|"), pg_links, ignore.case = TRUE)])
-    
-    i <- i + 1
-    
-    if(i > 10000) stop("something is wrong with the URL finder loop.")
-  }
+  file_list <- c("NHDPlusV21_CA_18_18a_FdrFac_01.7z", "NHDPlusV21_CA_18_18b_FdrFac_01.7z", 
+                 "NHDPlusV21_CA_18_18c_FdrFac_01.7z", "NHDPlusV21_CI_21_21a_FdrFac_01.7z", 
+                 "NHDPlusV21_CI_21_21b_FdrFac_01.7z", "NHDPlusV21_CI_21_21c_FdrFac_01.7z", 
+                 "NHDPlusV21_CO_14_14a_FdrFac_01.7z", "NHDPlusV21_CO_14_14b_FdrFac_01.7z", 
+                 "NHDPlusV21_CO_15_15a_FdrFac_01.7z", "NHDPlusV21_CO_15_15b_FdrFac_01.7z", 
+                 "NHDPlusV21_GB_16_16a_FdrFac_01.7z", "NHDPlusV21_GB_16_16b_FdrFac_01.7z", 
+                 "NHDPlusV21_GL_04_04a_FdrFac_03.7z", "NHDPlusV21_GL_04_04b_FdrFac_03.7z", 
+                 "NHDPlusV21_GL_04_04c_FdrFac_03.7z", "NHDPlusV21_GL_04_04d_FdrFac_03.7z", 
+                 "NHDPlusV21_HI_20_20a_FdrFac_01.7z", "NHDPlusV21_HI_20_20b_FdrFac_01.7z", 
+                 "NHDPlusV21_HI_20_20c_FdrFac_01.7z", "NHDPlusV21_HI_20_20d_FdrFac_01.7z", 
+                 "NHDPlusV21_HI_20_20e_FdrFac_01.7z", "NHDPlusV21_HI_20_20f_FdrFac_01.7z", 
+                 "NHDPlusV21_HI_20_20g_FdrFac_01.7z", "NHDPlusV21_HI_20_20h_FdrFac_01.7z", 
+                 "NHDPlusV21_MA_02_02a_FdrFac_01.7z", "NHDPlusV21_MA_02_02b_FdrFac_01.7z", 
+                 "NHDPlusV21_MS_05_05a_FdrFac_01.7z", "NHDPlusV21_MS_05_05b_FdrFac_01.7z", 
+                 "NHDPlusV21_MS_05_05c_FdrFac_01.7z", "NHDPlusV21_MS_05_05d_FdrFac_01.7z", 
+                 "NHDPlusV21_MS_06_06a_FdrFac_03.7z", "NHDPlusV21_MS_07_07a_FdrFac_01.7z", 
+                 "NHDPlusV21_MS_07_07b_FdrFac_01.7z", "NHDPlusV21_MS_07_07c_FdrFac_01.7z", 
+                 "NHDPlusV21_MS_08_03g_FdrFac_01.7z", "NHDPlusV21_MS_08_08a_FdrFac_01.7z", 
+                 "NHDPlusV21_MS_08_08b_FdrFac_01.7z", "NHDPlusV21_MS_10L_10a_FdrFac_01.7z", 
+                 "NHDPlusV21_MS_10L_10b_FdrFac_01.7z", "NHDPlusV21_MS_10L_10c_FdrFac_01.7z", 
+                 "NHDPlusV21_MS_10L_10d_FdrFac_01.7z", "NHDPlusV21_MS_10U_10e_FdrFac_02.7z", 
+                 "NHDPlusV21_MS_10U_10f_FdrFac_02.7z", "NHDPlusV21_MS_10U_10g_FdrFac_02.7z", 
+                 "NHDPlusV21_MS_10U_10h_FdrFac_02.7z", "NHDPlusV21_MS_10U_10i_FdrFac_02.7z", 
+                 "NHDPlusV21_MS_11_11a_FdrFac_01.7z", "NHDPlusV21_MS_11_11b_FdrFac_01.7z", 
+                 "NHDPlusV21_MS_11_11c_FdrFac_01.7z", "NHDPlusV21_MS_11_11d_FdrFac_01.7z", 
+                 "NHDPlusV21_NE_01_01a_FdrFac_01.7z", "NHDPlusV21_PI_22AS_22c_FdrFac_01.7z", 
+                 "NHDPlusV21_PI_22GU_22a_FdrFac_01.7z", "NHDPlusV21_PI_22MP_22b_FdrFac_01.7z", 
+                 "NHDPlusV21_PN_17_17a_FdrFac_01.7z", "NHDPlusV21_PN_17_17b_FdrFac_01.7z", 
+                 "NHDPlusV21_PN_17_17c_FdrFac_01.7z", "NHDPlusV21_PN_17_17d_FdrFac_01.7z", 
+                 "NHDPlusV21_RG_13_13a_FdrFac_01.7z", "NHDPlusV21_RG_13_13b_FdrFac_01.7z", 
+                 "NHDPlusV21_RG_13_13c_FdrFac_01.7z", "NHDPlusV21_RG_13_13d_FdrFac_01.7z", 
+                 "NHDPlusV21_SA_03N_03a_FdrFac_01.7z", "NHDPlusV21_SA_03N_03b_FdrFac_01.7z", 
+                 "NHDPlusV21_SA_03S_03c_FdrFac_01.7z", "NHDPlusV21_SA_03S_03d_FdrFac_01.7z", 
+                 "NHDPlusV21_SA_03W_03e_FdrFac_01.7z", "NHDPlusV21_SA_03W_03f_FdrFac_01.7z", 
+                 "NHDPlusV21_SR_09_09a_FdrFac_01.7z", "NHDPlusV21_TX_12_12a_FdrFac_01.7z", 
+                 "NHDPlusV21_TX_12_12b_FdrFac_01.7z", "NHDPlusV21_TX_12_12c_FdrFac_01.7z", 
+                 "NHDPlusV21_TX_12_12d_FdrFac_01.7z")
+  
+  urls <- sapply(file_list, \(x) {
+    spl <- strsplit(x, "_")[[1]]
+  
+    paste0(root, base, "NHDPlus", spl[2], "/", x)  
+  })
+  
   
   if(!is.null(regions)) {
-    found <- found[grepl(paste(paste0(".*_", regions, "?[a-z]_.*"), 
-                               collapse = "|"), found, ignore.case = TRUE)]
+    urls <- urls[grepl(paste(paste0(".*_", regions, "?[a-z]_.*"), 
+                             collapse = "|"), urls, ignore.case = TRUE)]
   }
   
-  for(f in found) {
+  for(f in urls) {
     fi <- basename(f)
     url <- f
     out_fi <- file.path(out_dir, fi)
