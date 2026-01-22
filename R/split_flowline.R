@@ -36,7 +36,9 @@ split_flowlines <- function(flines, max_length = NULL,
   
   flines <- rename_geometry(flines, "geom")
   
-  split <- split_lines(flines, max_length, events, 
+  split <- split_lines(input_lines = flines, 
+                       max_length, 
+                       events, 
                        para = para, 
                        avoid = avoid)
   
@@ -46,8 +48,8 @@ split_flowlines <- function(flines, max_length = NULL,
                        select(sf::st_set_geometry(flines, NULL), COMID, toCOMID, LevelPathI, Hydroseq, TotDASqKM), 
                        by = "COMID")
     
-    split$part <- unlist(lapply(strsplit(split$split_fID, "\\."),
-                                function(x) x[2]))
+    split$part <- as.numeric(unlist(lapply(strsplit(split$split_fID, "\\."),
+                                function(x) x[2])))
     
     split <- group_by(split, COMID)
     
@@ -176,6 +178,12 @@ split_lines <- function(input_lines,
   return(input_lines)
 }
 
+new_line <- function(i, f, t, l) {
+  lwgeom::st_linesubstring(x = sf::st_geometry(l)[i],
+                           from = f,
+                           to = t)[[1]]
+}
+
 # rescale REACH_meas to comid_meas
 
 rf <- function(m, f, t) {
@@ -185,7 +193,7 @@ rf <- function(m, f, t) {
   
 }
 
-add_length <- function(input_lines) {
+add_lengthm <- function(input_lines) {
   
   input_lines$geom_len <- sf::st_length(sf::st_geometry(input_lines))
   attr(input_lines$geom_len, "units") <- NULL
@@ -206,13 +214,6 @@ split_lines_fun <- function(split_points, lines, para) {
   
   lines <- pbapply::pblapply(seq_len(nrow(split_points)),
                                FUN = function(x, s, lines) {
-                                 
-                                 new_line <- function(i, f, t, l) {
-                                   lwgeom::st_linesubstring(x = sf::st_geometry(l)[i],
-                                                            from = f,
-                                                            to = t)[[1]]
-                                 }
-                                 
                                  new_line(i = which(lines$COMID == s$COMID[x]),
                                           f = split_points$start[x],
                                           t = split_points$end[x],

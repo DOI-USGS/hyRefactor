@@ -3,14 +3,14 @@ citHeader("To cite hyReactor in publications, please use:")
 bibentry(bibtype = "Manual",
          author = personList(
            as.person("David Blodgett"),
-           as.person("Mike Johnson")
+           as.person("J Michael Johnson")
          ),
          title = "hyRefactor: Hydrologic Network Refactoring Tools Based on HY_Features",
          publisher = "U.S. Geological Survey",
          address="Reston, VA",
-         version = "0.4.7",
+         version = "0.4.11",
          institution = "U.S. Geological Survey",
-         year = 2022,
-         url = "https://code.usgs.gov/water/hyRefactor",
-         textVersion = "Blodgett, D., Johnson, J.M., 2022, hyRefactor: Hydrologic Network Refactoring Tools Based on HY_Features, https://doi.org/10.5066/P9EP9UQZ"
+         year = 2024,
+         url = "https://code.usgs.gov/DOI-USGS/hyRefactor",
+         textVersion = "Blodgett, D., Johnson, J.M., 2024, hyRefactor: Tools for Manipulating the NHDPlus Network in Preparation for Hydrologic Modeling Version v0.4.11 U.S. Geological Survey software release, https://doi.org/10.5066/P9EP9UQZ"
 )

@@ -1,3 +1,11 @@
+drop_geometry <- function(x) {
+  if("sf" %in% class(x)) {
+    sf::st_drop_geometry(x)
+  } else {
+    x
+  }
+}
+
 #' @title Refactor NHDPlus
 #' @description A complete network refactor workflow has been packaged
 #' into this function. Builds a set of normalized catchment-flowpaths from
@@ -84,24 +92,22 @@ refactor_nhdplus <- function(nhdplus_flines,
   flines <- nhdplus_flines %>%
     sf::st_cast("LINESTRING", warn = warn) %>%
     sf::st_transform(5070) %>%
-    split_flowlines(split_flines_meters, para = split_flines_cores, 
+    split_flowlines(max_length = split_flines_meters, para = split_flines_cores, 
                     avoid = exclude_cats, events = events)
 
   rm(nhdplus_flines)
 
-  if (warn) {
-    message("flowlines split complete, collapsing")
-  }
+  if (warn) { message("flowlines split complete, collapsing") }
   
   exclude_cats <- c(exclude_cats, dplyr::filter(flines, !is.na(event_REACH_meas))$COMID,
                     dplyr::filter(flines, !is.na(event_REACH_meas))$toCOMID)
 
   if (three_pass) {
     collapsed_flines <-
-      collapse_flowlines(sf::st_set_geometry(flines, NULL),
-                         (0.25 * collapse_flines_meters / 1000),
+      collapse_flowlines(flines = sf::st_set_geometry(flines, NULL),
+                         (0.1 * collapse_flines_meters / 1000),
                          TRUE,
-                         (0.25 * collapse_flines_main_meters / 1000),
+                         (0.1 * collapse_flines_main_meters / 1000),
                          exclude_cats)
 
     collapsed_flines <-

@@ -16,3 +16,13 @@ data-raw
 ^tic\.R$
 Dockerfile
 v0.4.8_coverage.html
+^README\.Rmd$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^LICENSE\.md$
+^data/raw-data$
+^data/derived-data$
+^outputs$
+^figures$
+^analyses$

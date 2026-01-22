@@ -158,40 +158,40 @@ reconcile_collapsed_flowlines <- function(flines, geom = NULL, id = "COMID") {
 #' @details Note that all inputs must be passed in the same projection.
 #' @export
 #' @importFrom sf st_crs st_transform st_precision st_drop_geometry st_sf st_multipolygon st_as_sf st_cast st_dimension
-#' @importFrom nhdplusTools rename_geometry
 #' @importFrom terra crs res
 #' @importFrom dplyr select distinct filter group_by summarise ungroup row_number mutate bind_rows
 #' @importFrom tidyr separate_rows
 #' @importFrom parallel makeCluster stopCluster
 #' @importFrom pbapply pblapply
 #' @importFrom data.table rbindlist
+#' @importFrom nhdplusTools rename_geometry
 
 reconcile_catchment_divides <- function(catchment, 
-                                              fline_ref, 
-                                              fline_rec, 
-                                              fdr = NULL, fac = NULL,
-                                              para = 2, cache = NULL, 
-                                              min_area_m = 800, 
-                                              snap_distance_m = 100,
-                                              simplify_tolerance_m = 40, 
-                                              vector_crs = 5070,
-                                              fix_catchments = TRUE,
-                                              keep = .9) {
+                                        fline_ref, 
+                                        fline_rec, 
+                                        fdr = NULL, fac = NULL,
+                                        para = 2, cache = NULL, 
+                                        min_area_m = 800, 
+                                        snap_distance_m = 100,
+                                        simplify_tolerance_m = 40, 
+                                        vector_crs = 5070,
+                                        fix_catchments = TRUE,
+                                        keep = NULL) {
   
   in_crs    <- st_crs(catchment)
   catchment <- rename_geometry(catchment, "geom")
   fline_ref <- rename_geometry(fline_ref, "geom")
   fline_rec <- rename_geometry(fline_rec, "geom")
   
-  if(!is.null(fdr) && !is.null(fac)){
+  if(!is.null(fdr) & !is.null(fac)){
     
     fdr_temp <- fdr
+    
     if(!inherits(fdr_temp, "SpatRaster")){
       fdr_temp <- terra::rast(fdr_temp)
     }
-
+    
     catchment <-  st_transform(catchment, terra::crs(fdr_temp)) 
-    #st_precision(catchment) <- terra::res(fdr_temp)[1]
     fline_ref <-  st_transform(fline_ref,  terra::crs(fdr_temp))
     fline_rec <-  st_transform(fline_rec,  terra::crs(fdr_temp))
   }
@@ -324,9 +324,61 @@ reconcile_catchment_divides <- function(catchment,
   }
 }
 
-par_split_cat <- function(fid, to_split_ids, fline_ref, catchment, fdr, fac,
-                          min_area_m, snap_distance_m,
-                          simplify_tolerance_m, vector_crs) {
+par_split_cat <- function(fid, to_split_ids, 
+                          fline_ref, 
+                          catchment, 
+                          fdr, 
+                          fac,
+                          min_area_m, 
+                          snap_distance_m,
+                          simplify_tolerance_m, 
+                          vector_crs) {
+  out <- NULL
+  try({
+    
+    message(paste0(Sys.time(), " par_split_cat() on pid: ", 
+                   Sys.getpid(), " catchment: ", fid))
+    
+    if(!inherits(fdr, "SpatRaster")){
+      fdr = terra::rast(fdr)
+    }
+    
+    if(!inherits(fac, "SpatRaster")){
+      fac = terra::rast(fac)
+    }
+    
+    split_set <- to_split_ids[which(grepl(paste0("^", as.character(fid)), to_split_ids))]
+    to_split_flines <- dplyr::filter(fline_ref, COMID %in% split_set)
+    to_split_cat    <- dplyr::filter(catchment, FEATUREID == fid)
+    
+    split_cats <- split_catchment_divide(catchment = to_split_cat,
+                                         fline = to_split_flines,
+                                         fdr = fdr,
+                                         fac = fac, 
+                                         lr = FALSE,
+                                         min_area_m = min_area_m, 
+                                         snap_distance_m = snap_distance_m,
+                                         simplify_tolerance_m = simplify_tolerance_m, 
+                                         vector_crs = vector_crs)
+    
+    out <- sf::st_sf(FEATUREID = to_split_flines$COMID,
+                     geom = sf::st_cast(split_cats, "MULTIPOLYGON"), 
+                     stringsAsFactors = FALSE)
+  }, silent = FALSE)
+  
+  return(out)
+}
+
+par_split_cat <- function(fid, 
+                          to_split_ids, 
+                          fline_ref, 
+                          catchment, 
+                          fdr, 
+                          fac,
+                          min_area_m, 
+                          snap_distance_m,
+                          simplify_tolerance_m, 
+                          vector_crs) {
   out <- NULL
   try({
     

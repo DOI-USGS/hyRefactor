@@ -18,9 +18,9 @@ outlets <- data.frame(ID = get_id(c("5329843", "5329339.1", "5329385", "5329303"
                       stringsAsFactors = FALSE)
 
 
-aggregated       <- aggregate_catchments(flowpath = walker_fline_rec, 
+aggregated       <- aggregate_to_outlets(flowpath = walker_fline_rec, 
                                          divide = walker_catchment_rec,
-                                         outlets)
+                                         outlets = outlets)
 
 aggregated_fline <- aggregated$fline_sets
 aggregated_cat   <- aggregated$cat_sets
@@ -50,19 +50,19 @@ aggregate_lookup_cat <- dplyr::select(sf::st_drop_geometry(aggregated$cat_sets),
 expect_true(all(walker_fline_rec$ID %in% unlist(aggregate_lookup_cat$set)), 
             "all input ids should be in catchment output")
 
-expect_true(all(aggregated_cat$toID %in% get_id(c(NA, "5329843", "5329339.1", "5329303"))), info = "Expect these toIDs")
+expect_equal(aggregated_cat$toID, get_id(c(NA, "5329843", "5329339.1", "5329303")), info = "Expect these toIDs")
 
 expect_true(all(aggregated_cat$toID[!is.na(aggregated_cat$toID)] %in% aggregated_cat$ID),
        "All not NA toIDs should be in IDs")
 
 ### Make sure we can run split_catchment_divide on aggregate output.
-crs <- sf::st_crs(walker_fdr)
-aggregated_cat <- sf::st_transform(aggregated_cat, crs)
-aggregated_fline <- sf::st_transform(aggregated_fline, crs)
+crs <- st_crs(walker_fdr)
+aggregated_cat <- st_transform(aggregated_cat, crs)
+aggregated_fline <- st_transform(aggregated_fline, crs)
 
 aggregated_cat <- aggregated_cat[match(aggregated_fline$ID, aggregated_cat$ID), ]
 
-new_geom <- do.call(c, lapply(c(seq_len(nrow(aggregated_cat))), function(g) {
+new_geom <- do.call(c, lapply(c(1:nrow(aggregated_cat)), function(g) {
   split_catchment_divide(catchment = aggregated_cat[g, ], 
                          fline = aggregated_fline[g, ], 
                          fdr = walker_fdr, 
@@ -76,9 +76,9 @@ outlets <- data.frame(ID = get_id(c("5329843", "5329339.1", "5329385", "5329303"
                       type = c("outlet", "outlet", "outlet", "terminal", "outlet"),
                       stringsAsFactors = FALSE)
 
-aggregated <- aggregate_catchments(flowpath = walker_fline_rec, 
+aggregated <- aggregate_to_outlets(flowpath = walker_fline_rec, 
                                    divide = walker_catchment_rec, 
-                                   outlets)
+                                   outlets = outlets)
 
 aggregated_fline <- aggregated$fline_sets
 aggregated_cat <- aggregated$cat_sets
@@ -93,7 +93,7 @@ outlets <- data.frame(ID = get_id(c("5329363", "5329303")),
                       type = c("outlet", "terminal"),
                       stringsAsFactors = FALSE)
 
-aggregated <- aggregate_catchments(walker_fline_rec, walker_catchment_rec, outlets)
+aggregated <- aggregate_to_outlets(flowpath = walker_fline_rec, divide = walker_catchment_rec, outlets = outlets)
 aggregated_fline <- aggregated$fline_sets
 aggregated_cat <- aggregated$cat_sets
 
@@ -103,7 +103,7 @@ outlets <- data.frame(ID = get_id(c("5329293", "5329303")),
                       type = c("outlet", "terminal"),
                       stringsAsFactors = FALSE)
 
-aggregated <- aggregate_catchments(walker_fline_rec, walker_catchment_rec, outlets)
+aggregated <- aggregate_to_outlets(flowpath = walker_fline_rec, divide = walker_catchment_rec, outlets = outlets)
 aggregated_fline <- aggregated$fline_sets
 aggregated_cat <- aggregated$cat_sets
 
@@ -117,9 +117,9 @@ expect_true(length(aggregated_cat$set[[2]]) == 101, "got the wrong number in cat
 
 source(system.file("extdata", "new_hope_data.R", package = "hyRefactor"))
 
-new_hope_catchment_rec <- hyRefactor::clean_geometry(
+new_hope_catchment_rec <- hydrofab::clean_geometry(
   nhdplusTools:::check_valid(new_hope_catchment_rec), 
-  keep = NULL, crs = 5070)
+  keep = NULL, crs = 5070, sys = FALSE)
 
 test_that("new_hope aggregate", {
 
@@ -137,14 +137,14 @@ test_that("new_hope aggregate", {
   #                                "outlet", "outlet", "outlet", "outlet", "outlet", "outlet",
   #                                "outlet", "terminal"))
   #
-  # aggregated <- aggregate_catchments(new_hope_fline_rec, new_hope_catchment_rec, outlets)
+  # aggregated <- aggregate_to_outlets(new_hope_fline_rec, new_hope_catchment_rec, outlets)
   # nolint end
 
   outlets <- data.frame(ID = get_id(c("8896032.1", "8896032.2", "8896032.3", "8894360,8897784")),
                         type = c("outlet", "outlet", "outlet", "terminal"),
                         stringsAsFactors = FALSE)
 
-  aggregated <- aggregate_catchments(flowpath = new_hope_fline_rec, 
+  aggregated <- aggregate_to_outlets(flowpath = new_hope_fline_rec, 
                                      divide = new_hope_catchment_rec, 
                                      outlets = outlets)
   
@@ -155,7 +155,9 @@ test_that("new_hope aggregate", {
   expect_true(fline_sets$ID[1] %in% fline_sets$set[[1]],
          "A small headwater that was a divergence should show up as such")
   
-  expect_true(filter(fline_sets, ID == 241)$toID == 335,
+  fromID <- new_hope_fline_rec$ID[grepl("8893804", new_hope_fline_rec$member_COMID)]
+  toID <- new_hope_fline_rec$ID[grepl("8894360", new_hope_fline_rec$member_COMID)]
+  expect_true(dplyr::filter(fline_sets, ID == fromID)$toID == toID,
               "Something is off with topology")
 
   expect_true(all(fline_sets$ID %in% cat_sets$ID), "flines and cats should have the same ids")
@@ -169,18 +171,15 @@ test_that("new_hope aggregate", {
 
   expect_true(all(!fline_sets$set[fline_sets$ID == get_id("8896032.2")][[1]] %in% fline_sets$set[fline_sets$ID == get_id("8896032.1")][[1]]),
          "a downstream catchment should not contain flowpaths from upstream catchments")
-  
-  new_hope_catchment_rec$area_sqkm <- as.numeric(sf::st_area(
-    sf::st_transform(new_hope_catchment_rec, 5070))) / (1000^2)
-  
-  new_hope_fline_rec <- dplyr::inner_join(new_hope_fline_rec,
-                                  dplyr::select(sf::st_set_geometry(new_hope_catchment_rec, NULL),
-                                          ID, area_sqkm), by = "ID")
+
   new_hope_fline_rec$TotDASqKM <-
-    nhdplusTools::calculate_total_drainage_area(dplyr::rename(sf::st_set_geometry(new_hope_fline_rec, NULL),
+    nhdplusTools::calculate_total_drainage_area(
+      dplyr::rename(sf::st_set_geometry(new_hope_fline_rec, NULL),
                                          area = area_sqkm))
 
-  aggregated <- aggregate_catchments(new_hope_fline_rec, new_hope_catchment_rec, outlets,
+  aggregated <- aggregate_to_outlets(flowpath = new_hope_fline_rec, 
+                                     divide = new_hope_catchment_rec, 
+                                     outlets = outlets,
                                      da_thresh = 2, only_larger = TRUE)
 
   fline_sets_2 <- aggregated$fline_sets
@@ -190,8 +189,11 @@ test_that("new_hope aggregate", {
 
   expect_true(!any(get_id(c("8893788,8893784", "8894184,8894448")) %in% fline_sets_2$ID), "Shouldn't have a couple small catchments in output.")
   
-  # sf::write_sf(aggregated$cat_sets, "new_hope_collapse.gpkg", "boundary")
-  # sf::write_sf(aggregated$fline_sets, "new_hope_collapse.gpkg", "flowpath")
+  aggregated$cat_sets <- pack_set(aggregated$cat_sets)
+  aggregated$fline_sets <- pack_set(aggregated$fline_sets)
+  
+  expect_is(aggregated$cat_sets$set, "character")
+  
   # nolint end
 })
 
@@ -202,24 +204,21 @@ test_that("new_hope aggregate", {
     new_hope_catchment_rec$ID[ind]
   }
 
-  new_hope_catchment_rec$area_sqkm <- as.numeric(sf::st_area(
-    sf::st_transform(new_hope_catchment_rec, 5070))) / (1000^2)
-  new_hope_fline_rec <- dplyr::inner_join(new_hope_fline_rec,
-                                          dplyr::select(sf::st_set_geometry(new_hope_catchment_rec, NULL),
-                                                 ID, area_sqkm), by = "ID")
   new_hope_fline_rec[["TotDASqKM"]] <-
     nhdplusTools::calculate_total_drainage_area(dplyr::rename(sf::st_set_geometry(new_hope_fline_rec, NULL),
                                          area = area_sqkm))
 
   # HU12 FPP st_joined to get these
-  outlets <- data.frame(ID = get_id(c("8894358", "8894344.2", "8893780.2,8894326",
-                               "8895792", "8894336,8894342",
-                               "8894154.2", "8894142.1", "8894360,8897784")),
+  outlets <- data.frame(ID = get_id(c("8894358", "8894344", "8894326",
+                               "8895792", "8894342",
+                               "8894154", "8893324,8894142", "8894360,8897784")),
                         type = c("outlet", "outlet", "outlet", "outlet",
                                  "outlet", "outlet", "outlet", "terminal"),
                         stringsAsFactors = FALSE)
 
-  aggregated <- aggregate_catchments(new_hope_fline_rec, new_hope_catchment_rec, outlets)
+  aggregated <- aggregate_to_outlets(flowpath = new_hope_fline_rec, 
+                                     divide = new_hope_catchment_rec, 
+                                     outlets = outlets)
 
   fline_sets <- aggregated$fline_sets
   cat_sets <- aggregated$cat_sets
@@ -227,16 +226,16 @@ test_that("new_hope aggregate", {
   expect_true(length(which(sapply(fline_sets$set, function(x) get_id("8893342") %in% x))) == 1,
          "A connector flowpath should be added downstream of an upper hu.")
 
-  outlets <- data.frame(ID = get_id(c("8895638", "8894360,8897784")),
+  outlets <- data.frame(ID = get_id(c("8895638,8895766.1", "8894360,8897784")),
                         type = c("outlet", "terminal"),
                         stringsAsFactors = FALSE)
 
-  aggregated <- aggregate_catchments(new_hope_fline_rec, new_hope_catchment_rec, outlets,
+  aggregated <- aggregate_to_outlets(flowpath = new_hope_fline_rec, divide = new_hope_catchment_rec, outlets = outlets,
                                      only_larger = FALSE)
 
-  expect_true(get_id("8893780.2,8894326") %in% aggregated$cat_sets$ID,
+  expect_true(get_id("8894326") %in% aggregated$cat_sets$ID,
          "expect catchment downstream of outlet where levelpath changes to be in output")
-  expect_true(all(get_id(c("8896032.4,8896016", "8896054", "8895888.2,8897468")) %in% aggregated$cat_sets$ID),
+  expect_true(all(get_id(c("8896016,8896032.4", "8896054,8896080", "8897468,8895888.2")) %in% aggregated$cat_sets$ID),
          "expect contributing to the same nexus as another specified outlet")
 
   expect_true(length(aggregated$cat_sets$ID) == 11, "Expect 11 output catchments")
@@ -245,3 +244,5 @@ test_that("new_hope aggregate", {
   # sf::write_sf(aggregated$fline_sets, "new_hope_collapse.gpkg", "flowpath")
   # nolint end
 })
+
+Sys.unsetenv("TURN_OFF_SYS_MAPSHAPER")

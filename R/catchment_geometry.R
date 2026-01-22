@@ -45,21 +45,6 @@ union_polygons = function(poly, ID){
 #' @param ID ID to merge over
 #' @return an sf object
 #' @export
-
-union_linestrings_geos = function(lines, ID){
-  
-  u <- union_linestrings(lines, ID)
-  
-  u[match(unique(lines[[ID]]), u[[ID]]), ]
-  
-}
-
-#' Fast LINESTRING union
-#' @description Wayyyy faster then either data.table, or sf based line merging
-#' @param lines lines to merge
-#' @param ID ID to merge over
-#' @return an sf object
-#' @export
 #' @importFrom terra aggregate vect
 #' @importFrom dplyr select
 #' @importFrom sf st_as_sf
@@ -69,6 +54,21 @@ union_linestrings = function (lines, ID)  {
     st_as_sf() %>%
     select(!!ID) %>%
     flowpaths_to_linestrings()
+}
+
+#' DEPRECATED: Fast LINESTRING union
+#' @description Wayyyy faster then either data.table, or sf based line merging
+#' @param lines lines to merge
+#' @param ID ID to merge over
+#' @return an sf object
+#' @export
+
+union_linestrings_geos = function(lines, ID){
+  
+  u <- union_linestrings(lines, ID)
+  
+  u[match(unique(lines[[ID]]), u[[ID]]), ]
+  
 }
 
 #' Convert MULITLINESTINGS to LINESTRINGS
@@ -91,200 +91,302 @@ flowpaths_to_linestrings = function(flowpaths){
 
 
 #' Clean Catchment Geometry
-#' @description Fixes geometry issues present in catchments that originate in the
-#' CatchmentSP layers, or from the reconcile_catchments hyRefactor preocess.
+#' @description Fixes geometry issues present in catchments derived from DEMs.
 #' These include, but are not limited to disjoint polygon fragments, artifacts
-#' from the 30m DEM used to generate the catchments, and non-valid geometry topolgies.
-#' A goal of this functions is also to provide means to reduce the data column
+#' from the DEM used to generate the catchments, and non-valid geometry topologies.
+#' A secondary goal of this functions is to provide a way to reduce the data column
 #' of the catchments by offering a topology preserving simplification
 #' through \code{\link[rmapshaper]{ms_simplify}}.
 #' Generally a "keep" parameter of .9 seems appropriate for the resolution of
 #' the data but can be modified in function
 #' @param catchments catchments geometries to fix
+#' @param flowlines flowlines geometries to filter largest unit (optional)
 #' @param ID name of uniquely identifying column
+#' @param fl_ID flowlines unique identifier
 #' @param keep proportion of points to retain in geometry simplification
 #' (0-1; default 0.05). See \code{\link[rmapshaper]{ms_simplify}}.
 #' If NULL, then no simplification will be executed.
 #' @param crs integer or object compatible with sf::st_crs coordinate reference.
 #' Should be a projection that supports area-calculations.
+#' @param force should the mapshaper/mapshaper-xl binaries be used directly for simplification?
+#' @param gb The amount of heap memory to be allocated when force = TRUE
 #' @param sys logical should the mapshaper system library be used. If NULL 
 #' the system library will be used if available.
 #' @return sf object
 #' @export
-#' @importFrom dplyr select mutate filter group_by ungroup slice_max bind_rows n right_join rename slice_min
-#' @importFrom sf st_crs st_touches st_transform st_area st_make_valid st_intersection 
-#' @importFrom sf st_collection_extract st_cast st_intersects st_length st_filter st_union st_is_empty
-#' @importFrom rmapshaper ms_explode ms_dissolve ms_simplify
-#' @importFrom nhdplusTools rename_geometry
-#' @importFrom rlang :=
 
 clean_geometry <- function(catchments,
-                          ID = "ID",
-                          keep = .9,
-                          crs = 5070, 
-                          sys = NULL) {
-
+                           flowlines = NULL,
+                           fl_ID = NULL,
+                           ID = "ID",
+                           keep = NULL,
+                           crs = 5070,
+                           grid = .0009,
+                           gb = 8,
+                           force = FALSE,
+                           sys = NULL) {
+  
+  # keep an original count of # rows in catchments
+  MASTER_COUNT = nrow(catchments)
+  
+  # use system mapshaper or not
+  if(Sys.getenv("TURN_OFF_SYS_MAPSHAPER") == "YUP")  { sys <- FALSE }
+  
   if(is.null(sys)) {
     sys <- FALSE
-    try(sys <- is.character(rmapshaper::check_sys_mapshaper(verbose = FALSE)))
+    try(sys <- is.character(check_sys_mapshaper(verbose = FALSE)))
   }
   
-  in_crs = st_crs(catchments)
-
-  in_cat <- suppressWarnings({
-    catchments %>%
-    dplyr::select(ID = !!ID) %>%
-    st_transform(crs) %>%
-    mutate(areasqkm = add_areasqkm(.)) %>%
-    ms_explode(sys = sys) %>%
-    filter(!duplicated(.)) %>%
-    mutate(area = add_areasqkm(.))
+  # set crs variable to crs of catchments
+  if(!is.null(crs)){  crs = st_crs(catchments)  }
+  
+  catchments = lwgeom::st_snap_to_grid(st_transform(catchments, crs), size = grid)
+  
+  # cast MPs to POLYGONS and add featureid count column
+  polygons = suppressWarnings({
+    catchments %>% 
+      st_cast("MULTIPOLYGON") %>% 
+      st_cast("POLYGON") %>% 
+      fast_validity_check() %>% 
+      add_count(!!sym(ID)) %>% 
+      mutate(areasqkm = add_areasqkm(.), tmpID = 1:n()) %>% 
+      rename_geometry("geometry") 
   })
-
-  ids <- unique(filter(in_cat, duplicated(.data$ID))$ID)
-
-  if (length(ids) != 0) {
-
-    # single geometry catchments
-    cat_no_problem <- filter(in_cat, !.data$ID %in% ids)
-
-    # multi geometry catchments
-    challenges = filter(in_cat, .data$ID %in% ids) %>%
-      mutate(tmpID = seq_len(n())) %>%
-      filter(!st_is_empty(.))
-
-    # base cats: combo of biggest multi geom and single geom catchments
-    base_cats = challenges %>%
-      group_by(.data$ID) %>%
-      slice_max(.data$area) %>%
-      ungroup() %>%
-      bind_rows(cat_no_problem)
-
-    # Frags are polygon slivers not in the base catchments
-    frags = filter(challenges, !.data$tmpID %in% base_cats$tmpID)
-
-    # frags smaller than a square meter can be dropped.
-    frags <- filter(frags, area > 0.000001)
-
-    # If fragments exist, then fix, else return empty data.frame
-    if(nrow(frags) > 0){
-      frags = frags %>%
-        ms_dissolve(sys = sys) %>%
-        ms_explode(sys = sys) %>%
-        mutate(area = as.numeric(st_area(.))) %>%
-        st_make_valid()
-
-      out = tryCatch({
-        suppressWarnings({
-          st_intersection(frags, st_make_valid(base_cats)) %>%
-            st_collection_extract("LINESTRING")
-        })
-      }, error = function(e) { NULL })
-
-    } else {
-      out = data.frame()
-    }
-
-    if(is.null(out)){
-      in_cat = base_cats
-    } else if(!is.null(out) && nrow(out) != 0){
-      # ints are the LINSTRINGS of intersection between base_cats and frags
-      ints = out %>%
-        mutate(l = st_length(.)) %>%
-        group_by(.data$rmapshaperid) %>%
-        slice_max(.data$l, with_ties = FALSE) %>%
-        ungroup()
-
-      tj = right_join(frags,
-                      dplyr::select(st_drop_geometry(ints), .data$ID,
-                                    .data$rmapshaperid),
-                      by = "rmapshaperid") %>%
-        bind_rows(base_cats) %>%
-        dplyr::select(-.data$rmapshaperid, -.data$areasqkm, -.data$tmpID) %>%
-        group_by(.data$ID) %>%
-        mutate(n = n()) %>%
-        ungroup() %>%
-        nhdplusTools::rename_geometry("geometry") %>%
-        ungroup()
-
-      if(nrow(tj) == 0){
-        in_cat = base_cats
-      } else {
-        in_cat = suppressWarnings({
-          union_polygons(filter(tj, .data$n > 1) , "ID") %>%
-            bind_rows(dplyr::select(filter(tj, .data$n == 1), .data$ID)) %>%
-            mutate(tmpID = seq_len(n()))
-        })
-      }
-
-    } else {
-      in_cat = base_cats
-    }
-
-    # More then one polygon represents a FP
-    dups = in_cat$ID[duplicated(in_cat$ID)]
-
-    if (length(dups) > 0) {
-
-      for (i in seq_along(dups)) {
-        here = filter(in_cat, .data$ID == dups[i])
-
-        dissolve = slice_min(here, .data$areasqkm, with_ties = FALSE)
-
-        tmap = st_filter(in_cat, dissolve, .predicate = st_touches)
-
-        suppressWarnings({
-          opt <- st_intersection(dissolve, filter(tmap, !.data$tmpID %in% dissolve$tmpID))
-
-          # If the intersection is only multipoint geometry
-          # Note that geometry_type will be longer than one if more than one feature
-          # was returned from the st_intersection above.
-          gt <- sf::st_geometry_type(opt)
-          if(length(gt) == 1 && grepl("POINT", gt)) {
-            opt <- sf::st_cast(opt, "LINESTRING")
-          }
-
-          opt <- opt %>%
-            st_collection_extract("LINESTRING") %>%
-            mutate(l = st_length(.)) %>%
-            slice_max(.data$l, with_ties = FALSE)
-
-        })
-
-        ind = which(in_cat$tmpID == opt$tmpID.1)
-
-        in_cat$geometry[ind] = st_union(dissolve$geometry, in_cat$geometry[ind])
-        in_cat = filter(in_cat, !.data$tmpID %in%  dissolve$tmpID)
-      }
-    }
-  }
   
-
-  if (!is.null(keep)) {
-    # message("Simplifying catchment boundaries: keep = ", keep)
-    if("tmpID" %in% names(in_cat)){
-      in_cat$tmpID = NULL
+  if(any(st_geometry_type(polygons) != "POLYGON") | 
+     nrow(polygons) != MASTER_COUNT){
+    # separate polygons with more than 1 feature counts
+    extra_parts = filter(polygons, n != 1) 
+    
+    # dissolve, and explode if necessary
+    extra_parts <- try({
+      extra_parts <- ms_dissolve(extra_parts, ID, copy_fields = names(extra_parts), sys = sys)
+      ms_explode(extra_parts, sys = sys)
+    },
+      silent = TRUE
+    )
+    
+    extra_parts$tmpID = 1:nrow(extra_parts)
+    
+    if(!is.null(flowlines)){
+      
+      u = unique(extra_parts[[ID]])
+      
+      fl = dplyr::filter(flowlines, .data[[fl_ID]] %in% u)
+      
+      imap = st_intersects(extra_parts, st_transform(st_zm(fl), st_crs(extra_parts)))
+  
+      l = lengths(imap)
+    
+      df = data.frame(
+        tmpID    = rep(extra_parts[['tmpID']], times = l),
+        uid      = rep(extra_parts[[ID]], times = l),
+        touch_id = fl[[fl_ID]][unlist(imap)] ) %>% 
+        group_by(tmpID) %>% 
+        summarize(prime = any(uid == touch_id))
+      
+      extra_parts = left_join(extra_parts, df, by = 'tmpID') %>% 
+        mutate(prime = ifelse(is.na(prime), FALSE, prime))
+      
+    } else {
+      extra_parts$prime = FALSE
     }
     
-    in_cat = ms_simplify(in_cat, keep = keep, keep_shapes = TRUE, sys = sys)
+    # recalculate area
+    extra_parts <- mutate(extra_parts, areasqkm = add_areasqkm(extra_parts)) %>% 
+      arrange(desc(prime), desc(areasqkm)) %>% 
+      mutate(newID = row_number())
+
+    # get the biggest parts by area in each catchment and bind with rest of good_to_go catchments
+    main_parts <- 
+      extra_parts %>% 
+      group_by(.data[[ID]]) %>% 
+      slice(1) %>% 
+      ungroup() 
+    
+    small_parts <- 
+      extra_parts %>% 
+      filter(!newID %in% main_parts$newID)
+    
+    if(!sum(nrow(main_parts)) + nrow(filter(polygons, n == 1)) == MASTER_COUNT){ 
+      stop() 
+    }
+    
+    main_parts =  bind_rows(main_parts, filter(polygons, n == 1))
+    
+    if(is.null(small_parts)){
+      small_parts = data.frame()
+    }
+    
+    if(nrow(small_parts) > 0){
+      # dissolve, and explode if necessary
+      small_parts <- tryCatch({
+        tmp <- ms_dissolve(small_parts, 
+                                   ID, 
+                                   copy_fields = names(small_parts), 
+                                   sys = sys)
+        
+        ms_explode(tmp,  sys = sys)
+      },
+        error = function(e){ NULL}, 
+        warning = function(w){ NULL }
+      )
+      
+      # add area
+      small_parts =  mutate(
+        small_parts, 
+        areasqkm = add_areasqkm(small_parts),
+        newID    = 1:n()
+      ) %>% 
+        select(newID)
+      
+      # get the intersection between big parts and small parts and pull out the LINESTRINGs
+      out = tryCatch({
+        suppressWarnings({
+          st_intersection(small_parts, st_make_valid(main_parts)) %>%
+            st_collection_extract("LINESTRING")
+        })
+      }, error = function(e) {
+        st_intersection(small_parts, st_make_valid(main_parts)) %>%
+          st_collection_extract("POINT")
+      })
+  
+      
+      ints =  out %>%
+        mutate(l = st_length(.)) %>%
+        group_by(newID) %>%
+        slice_max(l, with_ties = FALSE) %>%
+        ungroup()
+      
+      tj = right_join(
+        small_parts,
+        select(st_drop_geometry(ints), !!ID, newID),
+        by = "newID"
+      ) %>%
+        bind_rows(main_parts) %>%
+        select(-areasqkm, -tmpID, -newID) %>%
+        group_by(.data[[ID]]) %>%
+        mutate(n = n()) %>%
+        ungroup() %>%
+        rename_geometry('geometry')
+      
+      in_cat <- 
+        union_polygons(
+          filter(tj, n > 1),
+          ID
+        ) %>% 
+        bind_rows(
+          select(
+            filter(tj, n == 1), 
+            !!ID)
+        ) %>%
+        mutate(tmpID = 1:n()) %>% 
+        fast_validity_check()
+      
+    } else {
+      in_cat = fast_validity_check(main_parts)
+    }
+    
+
+    if(!is.null(keep)){  
+      in_cat = tryCatch({
+        simplify_process(in_cat, keep, sys, force = force, gb = gb) 
+      }, error = function(e){
+        if(force){
+          message("Even when using the system mapshaper, an error has been found.")
+        } else {
+          message("Try using `force=TRUE` to envoke the system mapshaper.")
+        }
+      })
+    } 
+  
+    x = select(catchments, -any_of(c('areasqkm')))  %>%
+        st_drop_geometry()  %>%
+        mutate("{ID}" := as.numeric(get(!!ID))) 
+      
+    x2 = mutate(in_cat, areasqkm = add_areasqkm(in_cat)) |> 
+        st_transform(crs) |>
+        mutate("{ID}" := as.numeric(get(!!ID))) |>
+        select(ID, areasqkm) |>
+        left_join(x, by = ID)
+   
+     return(x2)
+    
+  } else {
+    
+    if(!is.null(keep)){ 
+      polygons = tryCatch({
+        simplify_process(polygons, 
+                         keep = keep, 
+                         sys = sys, 
+                         force = force, 
+                         gb = gb) 
+      }, error = function(e){
+        if(force){
+          message("Even when using the system mapshaper, an error has been found.")
+        } else {
+          message("Try using `force=TRUE` to envoke the system mapshaper.")
+        }
+      })
+       
+    } 
+    
+     return(
+       select(polygons, -any_of(c("n", 'tmpID')))
+     )
   }
-
-  # since areasqkm will be added based on the new geometries,
-  # we need to drop that column if it exists. We want to retain
-  # any others that that came with the OG catchments
-
-  if("areasqkm" %in% names(catchments)){
-    catchments = select(catchments, -.data$areasqkm)
-  }
-
-  in_cat %>%
-    mutate(areasqkm = add_areasqkm(.)) %>%
-    st_transform(in_crs) %>%
-    dplyr::select("{ID}" := ID, .data$areasqkm)  %>%
-    left_join(st_drop_geometry(catchments), by = ID) %>%
-    filter(!duplicated(.))
-
 }
+  
+# quickly check and validate invalid geometries only
+fast_validity_check <- function(x){
+  
+  bool    = st_is_valid(x)
+  valid   = filter(x, bool)
+  invalid = st_make_valid(filter(x, !bool)) %>% 
+    st_cast("POLYGON")
+  
+  return(bind_rows(valid, invalid))
+  
+}
+
+#' @importFrom yyjsonr write_geojson_file read_geojson_file
+
+simplify_process = function(catchments, keep, sys, gb = 8, force = TRUE){
+  
+  if(force){
+    tmp  = tempfile(fileext = ".geojson")
+    tmp2 = tempfile(fileext = ".geojson")
+    crs  = st_crs(catchments)
+    yyjsonr::write_geojson_file(st_transform(catchments, 4326), tmp)
+    
+    if(gb <= 8){
+      system(glue("mapshaper {tmp} -simplify {keep} keep-shapes -o {tmp2}")) 
+    } else {
+      system(glue("mapshaper-xl {gb}gb {tmp} -simplify {keep} keep-shapes -o {tmp2}")) 
+    }
+
+    cats = suppressWarnings({
+      yyjsonr::read_geojson_file(tmp2) |>
+        st_transform(crs) 
+    })
+    
+    unlink(tmp)
+    unlink(tmp2)
+    
+  } else {
+    cats =  ms_simplify(catchments, keep = keep, keep_shapes = TRUE, sys = sys)
+  }
+  
+  tt = fast_validity_check(cats)
+  
+  if(nrow(tt) != sum(st_is_valid(tt))){
+    stop("Invalid simplication")
+  } else {
+    tt
+  }
+}
+
+
 
 #' Add Length Map to Refactored Network
 #' @description This function replicates the member_COMID column of a refactored
@@ -299,7 +401,7 @@ clean_geometry <- function(catchments,
 #' @export
 #' @examples
 #' \dontrun{
-#' path <- system.file("extdata/walker_reconcile.gpkg", package = "hyRefactor")
+#' path <- system.file("extdata/walker_reconcile.gpkg", package = "hydrofab")
 #' fps  <- add_lengthmap(flowpaths = sf::read_sf(path),
 #' length_table = nhdplusTools::get_vaa("lengthkm"))
 #' }
@@ -310,9 +412,9 @@ clean_geometry <- function(catchments,
 add_lengthmap = function(flowpaths, length_table){
 
   tmp = dplyr::select(st_drop_geometry(flowpaths),
-                           .data$ID,
-                           COMID = .data$member_COMID) %>%
-    mutate(COMID = strsplit(.data$COMID, ","))
+                           ID,
+                           COMID = member_COMID) %>%
+    mutate(COMID = strsplit(COMID, ","))
 
   unnested = data.frame(ID =  rep(tmp$ID,  times = lengths(tmp$COMID)),
                     COMID = as.character(unlist(tmp$COMID)))
@@ -321,25 +423,25 @@ add_lengthmap = function(flowpaths, length_table){
     mutate(baseCOMID = floor(as.numeric(COMID)))
 
   lengthm_fp = length_table %>%
-    select(baseCOMID = .data$comid, .data$lengthkm) %>%
-    mutate(lengthm_fp = .data$lengthkm * 1000, lengthkm = NULL)
+    select(baseCOMID = comid, lengthkm) %>%
+    mutate(lengthm_fp = lengthkm * 1000, lengthkm = NULL)
   
   lengthm_id = flowpaths %>%
     mutate(lengthm_id = as.numeric(st_length(.))) %>%
-    select(.data$ID, .data$lengthm_id) %>%
+    select(ID, lengthm_id) %>%
     st_drop_geometry()
 
   map = left_join(left_join(unnested2, lengthm_fp, "baseCOMID"), lengthm_id, by = "ID") %>%
-    mutate(perLength = round(.data$lengthm_id/.data$lengthm_fp, 3)/10) %>%
-    select(.data$ID, .data$COMID, .data$perLength) %>%
+    mutate(perLength = round(lengthm_id/lengthm_fp, 3)/10) %>%
+    select(ID, COMID, perLength) %>%
     right_join(unnested, by = c("ID", "COMID")) %>%
-    mutate(perLength = ifelse(is.na(.data$perLength), 1,
-                              as.character(.data$perLength))) %>%
-    arrange(.data$ID) %>%
-    mutate(new = paste0(floor(as.numeric(.data$COMID)), ".",
-                        gsub("0\\.", "", .data$perLength))) %>%
-    group_by(.data$ID) %>%
-    summarize(lengthMap = paste(.data$new, collapse = ",")) %>%
+    mutate(perLength = ifelse(is.na(perLength), 1,
+                              as.character(perLength))) %>%
+    arrange(ID) %>%
+    mutate(new = paste0(floor(as.numeric(COMID)), ".",
+                        gsub("0\\.", "", perLength))) %>%
+    group_by(ID) %>%
+    summarize(lengthMap = paste(new, collapse = ",")) %>%
     right_join(flowpaths) %>%
     st_as_sf()
 

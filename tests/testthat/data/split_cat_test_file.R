@@ -17,8 +17,7 @@ refactor_nhdplus(nhdplus_flines = test_fline,
                  out_reconciled = tr, 
                  three_pass = TRUE, 
                  purge_non_dendritic = FALSE, 
-                 # exclude_cats = POIs$COMID, # Can bring this back once we 
-                 # don't have POIs on flowlines without catchments.
+                 # exclude_cats = POIs$COMID, # Can bring this back once we don't have POIs on flowlines without catchments.
                  warn = TRUE)
 
 test_fline_ref <- sf::read_sf("~/temp/collapsed.gpkg", "collapsed")

@@ -1,4 +1,6 @@
 
+Sys.setenv(TURN_OFF_SYS_MAPSHAPER = "YUP")
+
 # nhdplus_path("~/Documents/Data/nhdp/NHDPlusNationalData/NHDPlusV21_National_Seamless.gdb/")
 # nhd <- stage_national_data()
 # atts <- readRDS(nhd$attributes)
@@ -105,9 +107,9 @@ outlets$ID <- as.integer(ids)
 
 outlets_sub <- dplyr::filter(outlets, !is.na(ID) & ID %in% cat_rec$ID)
 
-cat_agg <- aggregate_catchments(fline_rec,
-                                cat_rec,
-                                outlets_sub,
+cat_agg <- aggregate_to_outlets(flowpath =  fline_rec,
+                                divide = cat_rec,
+                                outlets = outlets_sub,
                                 da_thresh = 1,
                                 only_larger = TRUE)
 
@@ -115,3 +117,5 @@ expect_equal(nrow(cat_agg$cat_sets), 517)
 
 expect_equal(nrow(cat_agg$fline_sets), 517)
 })
+
+Sys.unsetenv("TURN_OFF_SYS_MAPSHAPER")

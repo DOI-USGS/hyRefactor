@@ -1,5 +1,7 @@
 context("split_catchment_divide")
 
+Sys.setenv(TURN_OFF_SYS_MAPSHAPER = "YUP")
+
 test_that("split_catchment_divide works", {
   tf <- file.path(tempfile(fileext = ".gpkg"))
   tr <- file.path(tempfile(fileext = ".gpkg"))
@@ -233,8 +235,8 @@ test_that("too small split", {
   catchment <- read_sf(list.files(pattern = "split_bug.gpkg$", full.names = TRUE, recursive = TRUE), "catchment")
   fline <- read_sf(list.files(pattern = "split_bug.gpkg$", full.names = TRUE, recursive = TRUE), "fline")
 
-  fdr <- rast(list.files(pattern = "split_bug_fdr.tif$", full.names = TRUE, recursive = TRUE))
-  fac <- rast(list.files(pattern = "split_bug_fac.tif$", full.names = TRUE, recursive = TRUE))
+  fdr <- rast( list.files(pattern = "split_bug_fdr.tif$", full.names = TRUE, recursive = TRUE))
+  fac <- rast( list.files(pattern = "split_bug_fac.tif$", full.names = TRUE, recursive = TRUE))
 
   expect_error(split_catchment_divide(catchment, fline, fdr, fac,
                                       min_area_m = 800, snap_distance_m = 100),
@@ -308,3 +310,5 @@ test_that("merrit dem", {
   # plot(rec_cat$geom[1], add = TRUE, col = "red")
 
 })
+
+Sys.unsetenv("TURN_OFF_SYS_MAPSHAPER")
