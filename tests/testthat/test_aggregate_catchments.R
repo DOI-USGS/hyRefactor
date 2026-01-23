@@ -1,5 +1,7 @@
 context("aggregate catchment")
 
+Sys.setenv(TURN_OFF_SYS_MAPSHAPER = "YUP")
+
 test_that("walker aggregate runs", {
 source(system.file("extdata", "walker_data.R", package = "hyRefactor"))
 
@@ -121,6 +123,15 @@ new_hope_catchment_rec <- hyRefactor::clean_geometry(
   nhdplusTools:::check_valid(new_hope_catchment_rec), 
   keep = NULL, crs = 5070, sys = FALSE)
 
+new_hope_catchment_rec$area_sqkm <- as.numeric(sf::st_area(
+  sf::st_transform(new_hope_catchment_rec, 5070))) / (1000^2)
+
+new_hope_fline_rec <- dplyr::inner_join(new_hope_fline_rec,
+                                        dplyr::select(sf::st_set_geometry(new_hope_catchment_rec, NULL),
+                                                      ID, area_sqkm), by = "ID")
+new_hope_fline_rec$TotDASqKM <-
+  hydroloom::accumulate_downstream(new_hope_fline_rec, var = "area_sqkm", total = FALSE, quiet = TRUE)
+
 test_that("new_hope aggregate", {
 
   get_id <- function(mc) {
@@ -172,11 +183,6 @@ test_that("new_hope aggregate", {
   expect_true(all(!fline_sets$set[fline_sets$ID == get_id("8896032.2")][[1]] %in% fline_sets$set[fline_sets$ID == get_id("8896032.1")][[1]]),
          "a downstream catchment should not contain flowpaths from upstream catchments")
 
-  new_hope_fline_rec$TotDASqKM <-
-    nhdplusTools::calculate_total_drainage_area(
-      dplyr::rename(sf::st_set_geometry(new_hope_fline_rec, NULL),
-                                         area = TotDASqKM))
-
   aggregated <- aggregate_to_outlets(flowpath = new_hope_fline_rec, 
                                      divide = new_hope_catchment_rec, 
                                      outlets = outlets,
@@ -204,14 +210,10 @@ test_that("new_hope aggregate", {
     new_hope_catchment_rec$ID[ind]
   }
 
-  new_hope_fline_rec[["TotDASqKM"]] <-
-    nhdplusTools::calculate_total_drainage_area(dplyr::rename(sf::st_set_geometry(new_hope_fline_rec, NULL),
-                                                              area = area_sqkm))
-
   # HU12 FPP st_joined to get these
-  outlets <- data.frame(ID = get_id(c("8894358", "8894344", "8894326",
-                               "8895792", "8894342",
-                               "8894154", "8893324,8894142", "8894360,8897784")),
+  outlets <- data.frame(ID = get_id(c("8894358", "8894344.1", "8893780.2,8894326",
+                                      "8895792", "8894336,8894342",
+                                      "8894154.1", "8894142.2,8893324", "8894360,8897784")),
                         type = c("outlet", "outlet", "outlet", "outlet",
                                  "outlet", "outlet", "outlet", "terminal"),
                         stringsAsFactors = FALSE)
@@ -226,16 +228,16 @@ test_that("new_hope aggregate", {
   expect_true(length(which(sapply(fline_sets$set, function(x) get_id("8893342") %in% x))) == 1,
          "A connector flowpath should be added downstream of an upper hu.")
 
-  outlets <- data.frame(ID = get_id(c("8895638,8895766.1", "8894360,8897784")),
+  outlets <- data.frame(ID = get_id(c("8895638", "8894360,8897784")),
                         type = c("outlet", "terminal"),
                         stringsAsFactors = FALSE)
 
   aggregated <- aggregate_to_outlets(flowpath = new_hope_fline_rec, divide = new_hope_catchment_rec, outlets = outlets,
                                      only_larger = FALSE)
 
-  expect_true(get_id("8894326") %in% aggregated$cat_sets$ID,
+  expect_true(get_id("8893780.2,8894326") %in% aggregated$cat_sets$ID,
          "expect catchment downstream of outlet where levelpath changes to be in output")
-  expect_true(all(get_id(c("8896016,8896032.4", "8896054,8896080", "8897468,8895888.2")) %in% aggregated$cat_sets$ID),
+  expect_true(all(get_id(c("8896032.4,8896016", "8896054", "8895888.2,8897468")) %in% aggregated$cat_sets$ID),
          "expect contributing to the same nexus as another specified outlet")
 
   expect_true(length(aggregated$cat_sets$ID) == 11, "Expect 11 output catchments")

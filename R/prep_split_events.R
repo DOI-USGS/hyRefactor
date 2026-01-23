@@ -4,7 +4,7 @@
 #' @param divides a set of divides geometries (EPSG:5070)
 #' @param theshold a percentage (0-100) a POI must be upstream before splitting
 #' @return sf POINT object
-#' @export
+#' @noRd
 
 prep_split_events = function(pois, fline, divides, threshold = 25) {
 

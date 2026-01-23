@@ -105,9 +105,9 @@ refactor_nhdplus <- function(nhdplus_flines,
   if (three_pass) {
     collapsed_flines <-
       collapse_flowlines(flines = sf::st_set_geometry(flines, NULL),
-                         (0.1 * collapse_flines_meters / 1000),
+                         (0.25 * collapse_flines_meters / 1000),
                          TRUE,
-                         (0.1 * collapse_flines_main_meters / 1000),
+                         (0.25 * collapse_flines_main_meters / 1000),
                          exclude_cats)
 
     collapsed_flines <-

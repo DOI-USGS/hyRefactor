@@ -299,7 +299,7 @@ split_by_length <- function(lines, max_length, event_split_points, avoid) {
   
   if(is.null(max_length)) return(data.frame())
   
-  lines <- sf::st_drop_geometry(add_lengthkm(lines))
+  lines$geom_len <- as.numeric(sf::st_length(lines))
   
   if(nrow(event_split_points) > 0) {
     event_split_points <- dplyr::left_join(event_split_points, 
@@ -336,13 +336,13 @@ split_by_length <- function(lines, max_length, event_split_points, avoid) {
   # for each part we expect in the output.
   
   lines[rep(seq_len(nrow(lines)),lines$pieces), ] %>%
-    dplyr::select(-.data$pieces) %>%
+    dplyr::select(-pieces) %>%
     # Assign featureIDs to the output. start and end are decimal % along catchment
     dplyr::group_by(.data$fID) %>%
     dplyr::mutate(piece = seq_len(n())) %>%
     dplyr::mutate(start = (.data$piece - 1) / dplyr::n(),
                   end = .data$piece / dplyr::n()) %>%
     dplyr::ungroup() %>%
-    dplyr::select(-.data$piece)
+    dplyr::select(-piece)
   
 }

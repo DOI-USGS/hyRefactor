@@ -23,7 +23,7 @@
 #' @export
 #' @importFrom sf st_transform read_sf st_set_crs write_sf st_layers
 #' @importFrom dplyr left_join filter semi_join
-#' @importFrom nhdplusTools get_sorted calculate_total_drainage_area get_streamorder
+#' @importFrom nhdplusTools get_sorted get_streamorder
 #' @importFrom logger log_appender appender_file appender_console
 #' @importFrom tidyr separate_longer_delim
 

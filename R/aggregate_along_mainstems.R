@@ -125,7 +125,7 @@ aggregate_along_mainstems = function(network_list,
 #' @param amin a threshold, or target, cumulative size
 #' @param lmin a threshold, or target, cumulative size
 #' @return a vector of length(areas) containing grouping indexes
-#' @export
+#' @noRd
 #'
 
 cs_group <- function(areas,
@@ -200,7 +200,7 @@ cs_group <- function(areas,
 #' @param thres threshold to evaluate x
 #' @return a vector of length(x) containing grouping indexes
 #' @importFrom sf st_set_geometry st_geometry
-#' @export
+#' @noRd
 
 pinch_sides = function(x, ind, thres) {
   tmp_areas = unlist(lapply(split(x, ind), sum))
@@ -232,7 +232,7 @@ pinch_sides = function(x, ind, thres) {
 #' @param index_values current index values
 #' @param threshold threshold to evaluate x
 #' @return a vector of length(x) containing grouping indexes
-#' @export
+#' @noRd
 
 middle_massage = function(x, index_values, threshold) {
   tmp_areas = unlist(lapply(split(x, index_values), sum))
@@ -270,7 +270,7 @@ middle_massage = function(x, index_values, threshold) {
 #' @param lthres a minimum length that must be achieved
 #' @param athres a minimum length that must be achieved
 #' @return a vector of length(a) containing grouping indexes
-#' @export
+#' @noRd
 
 agg_length_area   <- function(l, a, lthres, athres) {
   ids = 1:length(l)
@@ -331,7 +331,7 @@ splitAt <- function(x, pos) {
 #' @param athres the ideal cumulative size of each group
 #' Cumulative sums will get as close to this value without exceeding it
 #' @return a vector of length(a)
-#' @export
+#' @noRd
 
 assign_id = function(x, athres) {
   cumsum <- 0
@@ -355,7 +355,7 @@ assign_id = function(x, athres) {
 #' @param network_list a list of flowpaths and catchments
 #' @param index_table index table to aggregate with
 #' @return a list of catchments and flowpaths that have been validated
-#' @export
+#' @noRd
 #' @importFrom dplyr group_by mutate slice_max ungroup select left_join everything filter bind_rows rename `%>%` inner_join
 #' @importFrom sf st_as_sf
 #' @importFrom nhdplusTools get_sorted

@@ -74,7 +74,7 @@ reconcile_collapsed_flowlines <- function(flines, geom = NULL, id = "COMID") {
 
   new_flines <- left_join(new_flines,
                           select(new_flines, .data$becomes, toID = .data$ID),
-                          by = c("toCOMID" = "becomes")) %>%
+                          by = c("toCOMID" = "becomes"), relationship = "many-to-many") %>%
     arrange(.data$Hydroseq, desc(.data$part))
 
   new_flines <- left_join(new_flines,
@@ -317,7 +317,7 @@ reconcile_catchment_divides <- function(catchment,
   
   if(fix_catchments){
     # cat("Fixing Catchment Geometries...\n")
-    clean_geometry(catchments = out, "ID", keep) %>% 
+    clean_geometry(catchments = out, ID = "ID", keep = keep) %>% 
       sf::st_transform(in_crs)
   } else {
     sf::st_transform(out, in_crs)

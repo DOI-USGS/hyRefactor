@@ -1,7 +1,7 @@
 #' Identify intersection types and downstream topology
 #' @param flowpaths sf LINESTRING
 #' @return data.frame with id, type, touches, touches_toID columns
-#' @export
+#' @noRd
 #' @importFrom nhdplusTools rename_geometry get_node
 #' @importFrom sf st_intersects st_drop_geometry st_cast
 #' @importFrom dplyr left_join select
@@ -53,7 +53,7 @@ define_touch_id = function(flowpaths, term_cut = 1e9){
 #' @param min_area_sqkm The minimum allowable size of the output hydrofabric catchments
 #' @param min_length_km The minimum allowable length of the output hydrofabric flowlines
 #' @return a 2 column data.frame with {id, becomes}
-#' @export
+#' @noRd
 #' @importFrom dplyr mutate filter group_by mutate ungroup distinct
 #' @importFrom sf st_set_geometry st_geometry st_buffer st_intersects
 #' @importFrom nhdplusTools get_node

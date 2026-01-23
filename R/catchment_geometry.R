@@ -2,7 +2,7 @@
 #' Short hand for safely computing area in sqkm and returning as numeric vector.
 #' @param x sf object
 #' @return numeric vector
-#' @export
+#' @noRd
 #' @examples
 #' library(sf)
 #' nc = st_read(system.file("shape/nc.shp", package="sf"))
@@ -18,12 +18,14 @@ add_areasqkm = function(x){
 #' @param poly sf POLYGON object
 #' @param ID the column name over which to union geometries
 #' @return sf object
-#' @export
+#' @noRd
 #' @importFrom terra aggregate vect makeValid
 #' @importFrom dplyr select
 #' @importFrom sf st_as_sf st_collection_extract st_geometry_type st_make_valid
 
 union_polygons = function(poly, ID){
+  
+  if(nrow(poly) == 0) return(poly)
   
   poly = select(poly, !!ID) %>% 
     vect() %>% 
@@ -44,7 +46,7 @@ union_polygons = function(poly, ID){
 #' @param lines lines to merge
 #' @param ID ID to merge over
 #' @return an sf object
-#' @export
+#' @noRd
 #' @importFrom terra aggregate vect
 #' @importFrom dplyr select
 #' @importFrom sf st_as_sf
@@ -61,7 +63,7 @@ union_linestrings = function (lines, ID)  {
 #' @param lines lines to merge
 #' @param ID ID to merge over
 #' @return an sf object
-#' @export
+#' @noRd
 
 union_linestrings_geos = function(lines, ID){
   
@@ -74,7 +76,7 @@ union_linestrings_geos = function(lines, ID){
 #' Convert MULITLINESTINGS to LINESTRINGS
 #' @param flowpaths a flowpath `sf` object
 #' @return a `sf` object
-#' @export
+#' @noRd
 #' @importFrom sf st_geometry_type st_geometry st_line_merge
 #' @importFrom dplyr bind_rows
 
@@ -244,10 +246,12 @@ clean_geometry <- function(catchments,
             st_collection_extract("LINESTRING")
         })
       }, error = function(e) {
-        st_intersection(small_parts, st_make_valid(main_parts)) %>%
-          st_collection_extract("POINT")
+        suppressWarnings({
+          st_intersection(small_parts, st_make_valid(main_parts)) %>%
+            st_collection_extract("POINT")
+        })
       })
-  
+      
       
       ints =  out %>%
         mutate(l = st_length(.)) %>%

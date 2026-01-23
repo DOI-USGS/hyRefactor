@@ -2,7 +2,7 @@
 #' This is a temporary function as changes get pushed upstream
 #' @param gpkg gpkg file path
 #' @return file.path
-#' @export
+#' @noRd
 
 make_hf_gpkg_from_uniform_aggregate = function(gpkg){
   
@@ -91,7 +91,7 @@ make_hf_gpkg_from_uniform_aggregate = function(gpkg){
 #' This is a temporary function as changes get pushed upstream
 #' @param gpkg gpkg file path
 #' @return file.path
-#' @export
+#' @noRd
 
 make_hf_gpkg_from_reference = function(gpkg){
   
@@ -182,7 +182,7 @@ make_hf_gpkg_from_reference = function(gpkg){
 #' This is a temporary function as changes get pushed upstream
 #' @param gpkg gpkg file path
 #' @return file.path
-#' @export
+#' @noRd
 
 #gpkg = get_hydrofabric(VPU = "01", 
 # type = "refactor",

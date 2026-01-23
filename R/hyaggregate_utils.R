@@ -4,8 +4,8 @@
 #' @details tot_drainage_areasqkm can only be added when there are no NA areas
 #' @param network_list a list with flowpath and catchment data
 #' @return a list containing flowpath and catchment `sf` objects
-#' @export
-#' @importFrom nhdplusTools get_streamorder calculate_total_drainage_area
+#' @noRd
+#' @importFrom nhdplusTools get_streamorder
 #' @importFrom sf st_drop_geometry
 #' @importFrom dplyr select
 
@@ -113,7 +113,7 @@ network_is_dag = function(fl, ID = "id", toID = "toid"){
 #' Add hydrosequence
 #' @param flowpaths sf object (LINESTRING)
 #' @return sf object
-#' @export
+#' @noRd
 #' @importFrom  nhdplusTools get_sorted 
 
 add_hydroseq = function(flowpaths) {
@@ -135,7 +135,7 @@ add_hydroseq = function(flowpaths) {
 #' Add/sync/update length and area measures
 #' @param cat sf object (POLYGON)
 #' @return list
-#' @export
+#' @noRd
 #' @importFrom dplyr select left_join
 #' @importFrom sf st_drop_geometry
 
@@ -153,7 +153,7 @@ add_measures = function(flowpaths, divides) {
 #' Compute length in kilometers
 #' @param x LINESTRING sf object
 #' @return numeric vector
-#' @export
+#' @noRd
 #' @importFrom units set_units drop_units
 #' @importFrom sf st_length
 
@@ -162,7 +162,7 @@ add_lengthkm = function (x) { drop_units(units::set_units(st_length(x), "km")) }
 #' Compute area in square kilometers
 #' @param x POLYGON sf object
 #' @return numeric vector
-#' @export
+#' @noRd
 #' @importFrom units set_units drop_units
 #' @importFrom sf st_area
 
@@ -173,7 +173,7 @@ add_areasqkm = function (x) { drop_units(set_units(st_area(x), "km2")) }
 #' @param input input data object
 #' @param col column to remove prefix from
 #' @return data object with updated column
-#' @export
+#' @noRd
 flush_prefix = function(input, col) {
   for (i in col) {
     input[[i]] = as.numeric(gsub(".*-", "", input[[i]]))
@@ -186,7 +186,7 @@ flush_prefix = function(input, col) {
 #' @param network_list a list containing flowpaths and catchments
 #' @param verbose should message be emitted?
 #' @return a list containing flowpaths and catchments
-#' @export
+#' @noRd
 
 drop_extra_features = function(network_list, verbose){
   
@@ -224,7 +224,7 @@ drop_extra_features = function(network_list, verbose){
 #' @param network_list a list containing flowpaths and catchments
 #' @param verbose should messages be emitted?
 #' @return boolean condition
-#' @export
+#' @noRd
 
 
 describe_hydrofabric = function(network_list, verbose = TRUE){

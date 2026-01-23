@@ -45,11 +45,11 @@ refactor  = function (gpkg = NULL,
   fl_lookup  <- c(id = "comid", toid = "tocomid", levelpathi = "mainstemlp")
   div_lookup <- c(featureid = "divide_id", toid = "tocomid", levelpathi = "mainstemlp")
   
-  geom <- st_geometry(network_list$flowpaths)
+  geom <- sf::st_geometry(network_list$flowpaths)
   
   network_list$flowpaths = dplyr::rename(as.data.frame(network_list$flowpaths), any_of(fl_lookup))
   
-  st_geometry( network_list$flowpaths ) = geom
+  sf::st_geometry( network_list$flowpaths ) = geom
   
   tf <- tempfile(pattern = "refactored", fileext = ".gpkg")
   tr <- tempfile(pattern = "reconciled", fileext = ".gpkg")

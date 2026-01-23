@@ -3,7 +3,7 @@
 #' @param comid the shared ID
 #' @return data.frame
 #' @importFrom rlang `:=`
-#' @export
+#' @noRd
 
 add_areasqkm_to_crosswalk = function(crosswalk, comid = "hf_id"){
   get_vaa('areasqkm') %>% 
@@ -21,7 +21,7 @@ add_areasqkm_to_crosswalk = function(crosswalk, comid = "hf_id"){
 #' @param coastal_nexus_prefix A character string to prefix `toid` values where `type == "coastal"`. Default is `"cnx-"`.
 #' @param internal_nexus_prefix A character string to prefix `toid` values where `type == "internal"`. Default is `"inx-"`.
 #' @return A data frame with updated `id` and `toid` values, including appropriate prefixes based on the type of topology and the `type` column. The resulting data frame contains the columns `id`, `toid`, `type`, and any additional columns with names containing `"vpu"`.
-#' @export
+#' @noRd
 
 add_prefix = function(topo,
                       hf_prefix = "cat-",
@@ -66,7 +66,7 @@ add_prefix = function(topo,
 #' @details 
 #' - The function processes each specified column by removing the prefix up to and including the last `-` character using a regular expression.
 #' - The updated columns are converted to numeric values.
-#' @export
+#' @noRd
 
 flush_prefix	 = function (input, col) {
   for (i in col) {
@@ -90,7 +90,7 @@ flush_prefix	 = function (input, col) {
 #' - For each divide of type `coastal` or `internal`, the function calculates a representative point using `st_point_on_surface`.
 #' - Prefixes are applied to `divide_id` and `toid` values using `flush_prefix` and `mutate`.
 #' - The output retains only the columns `id`, `toid`, `type`, and geometry.
-#' @export
+#' @noRd
 
 add_nonnetwork_nexus_location  = function(divides,
                                           coastal_nexus_prefix = "cnx-",
@@ -128,7 +128,7 @@ add_nonnetwork_nexus_location  = function(divides,
 #' @param catchment_prefix      character prefix for catchment IDs
 #' @param waterbody_prefix      character prefix for catchment IDs
 #' @return list
-#' @export
+#' @noRd
 #' @importFrom  dplyr select mutate left_join bind_rows group_by mutate ungroup filter distinct bind_rows slice_max rename case_when
 #' @importFrom  nhdplusTools rename_geometry get_node
 #' @importFrom  sf st_drop_geometry st_intersects st_as_sf
@@ -462,7 +462,7 @@ realign_topology = function(network_list,
 #' @param enforce_dm            should the data model be validated prior to writing?
 #' @param export_gpkg           file path to write new data. If NULL list object is returned
 #' @return list or file path
-#' @export
+#' @noRd
 #' @importFrom sf read_sf st_point_on_surface
 #' @importFrom dplyr select mutate left_join everything distinct contains slice n
 

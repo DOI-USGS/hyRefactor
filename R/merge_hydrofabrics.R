@@ -5,7 +5,7 @@
 #' @param divide_layer the layer name containing divides
 #' @param network_layer the name of layer containing the hydrologic network
 #' @return data.frame
-#' @export
+#' @noRd
 #' @importFrom dplyr mutate
 #' @importFrom sf st_layers
 
@@ -40,7 +40,7 @@ network_metadata = function(gpkgs,
 #' @param divide_layer the layer name containing divides
 #' @param network_layer the name of layer containing the hydrologic network
 #' @return data.frame
-#' @export
+#' @noRd
 #' @importFrom dplyr select filter mutate left_join inner_join
 #' @importFrom sf read_sf
 
@@ -97,7 +97,7 @@ build_new_id_table = function(meta,
 #' @param lookup a lookup table of new ID values
 #' @param vpu_topo a VPU lookup correction table
 #' @return data.frame
-#' @export
+#' @noRd
 #' @importFrom dplyr filter bind_rows
 
 update_network_identifiers = function(x, lookup, term_add = 1e9, connections  = NULL){
@@ -150,7 +150,7 @@ update_network_identifiers = function(x, lookup, term_add = 1e9, connections  = 
 #' @param overwrite overwrite existing files?
 #' @param verbose emit messages
 #' @return a data.frame
-#' @export 
+#' @noRd
 #' @importFrom dplyr filter select mutate left_join arrange
 #' @importFrom sf read_sf write_sf st_layers
 #' @importFrom tidyr pivot_longer pivot_wider

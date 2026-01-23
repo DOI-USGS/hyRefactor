@@ -44,7 +44,7 @@ create_style_row <- function(gpkg_path, layer_name, style_name, style_qml) {
 #' Append a hydrofabric style to a hydrofabric GeoPackage
 #' @param gpkg_path Path to GeoPackage
 #' @param layer_names character vector of names to append styles for. These names must be in the package QML directory.
-#' @export
+#' @noRd
 append_style <- function(gpkg_path, layer_names) {
     
     qmls = gsub(".qml", "", basename(system.file("qml", paste0(layer_names, ".qml"), package = "hydrofab")))

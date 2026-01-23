@@ -1,7 +1,7 @@
 #' Generate Catchment Network Table
 #' @param gpkg a  hydrofabric gpkg
 #' @return data.frame with ID, toID, length, area, and levelpath
-#' @export
+#' @noRd
 #' @importFrom sf st_drop_geometry write_sf
 #' @importFrom dplyr select 
 
@@ -20,7 +20,7 @@ add_flowpath_edge_list = function(gpkg){
 #' @param type the type of desired POIs
 #' @param verbose should messages be emitted?
 #' @return data.frame with ID, type columns
-#' @export
+#' @noRd
 #' @importFrom sf read_sf st_drop_geometry
 #' @importFrom dplyr mutate_at vars mutate group_by ungroup filter distinct slice
 #' @importFrom tidyr pivot_longer separate_longer_delim
@@ -78,7 +78,7 @@ hl_to_outlet = function(gpkg,
 #' @param refactored_gpkg a (optional) path to 
 #' @param verbose should messages be emited?
 #' @return list()
-#' @export
+#' @noRd
 #' @importFrom dplyr filter select mutate mutate_at vars group_by ungroup slice right_join starts_with
 #' @importFrom tidyr pivot_longer 
 #' @importFrom nhdplusTools get_node

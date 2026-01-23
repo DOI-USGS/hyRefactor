@@ -47,4 +47,7 @@ walker_flowline  <- sf::st_transform(walker_flowline, terra::crs(walker_fdr))
 # nolint end
 walker_fline_ref     <- sf::read_sf(file.path(extdata, "walker_refactor.gpkg"))
 walker_fline_rec     <- sf::read_sf(file.path(extdata, "walker_reconcile.gpkg"))
+
+walker_fline_rec$toID[is.na(walker_fline_rec$toID)] <- 0
+
 walker_catchment_rec <- sf::read_sf(file.path(extdata, "walker_cat_rec.gpkg"))

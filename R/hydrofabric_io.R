@@ -1,32 +1,8 @@
-#' Return ScienceBase ID for hydrofabric
-#' This function checks if a layer exists in a geopackage
-#' @param gpkg path to geopackage
-#' @param name name of layer to check
-#' @return character
-#' @export
-
-sb_id = function(type){
-  
-  if(type == "refactor") {
-    id = '61fbfdced34e622189cb1b0a'
-  } else if(type == "reference"){
-    id = '61295190d34e40dd9c06bcd7'
-  } else if(type == "uniform") {
-    id = '629a4246d34ec53d276f446d'
-  } else if(type == "minimal"){
-    id = '60be1502d34e86b9389102cc'
-  } else {
-    stop(glue("{type} not valid"))
-  }
-  
-  return(id)
-}
-
 #' Rename simple features layer
 #' @inheritParams sf::st_write 
 #' @param new_layer new layer name
 #' @return dsn
-#' @export
+#' @noRd
 
 st_rename = function(dsn, layer, new_layer) {
   read_sf(dsn, layer) |>
@@ -42,7 +18,7 @@ st_rename = function(dsn, layer, new_layer) {
 #' @param gpkg path to geopackage
 #' @param name name of layer to check
 #' @return logical
-#' @export
+#' @noRd
 #' @importFrom sf st_layers
 
 layer_exists = function(gpkg, name){
@@ -62,7 +38,7 @@ layer_exists = function(gpkg, name){
 #' @param message R objects that can be converted to a character vector via the active message formatter function
 #' @param verbose should message be emitted?
 #' @return log message
-#' @export
+#' @noRd
 #' @importFrom logger log_level
 #' @importFrom glue glue
 
@@ -262,7 +238,7 @@ write_hydrofabric = function(network_list,
 #' pack set
 #' @param x data.frame containing "set" list column to be packed
 #' @return data.frame containing comma seperated character column 
-#' @export
+#' @noRd
 pack_set <- function(x, y = "set") {
   x[[y]] <- sapply(x[[y]], paste, collapse = ",")
   x
@@ -271,7 +247,7 @@ pack_set <- function(x, y = "set") {
 #' unpack set
 #' @param x data.frame containing comma separated "set" column to be unpacked
 #' @return data.frame containing a list column
-#' @export
+#' @noRd
 unpack_set <- function(x, y = "set") {
   x[[y]] <- strsplit(x[[y]], ",")
   x
