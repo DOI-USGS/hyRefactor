@@ -1,3 +1,27 @@
+#' @importFrom dplyr across add_count bind_cols bind_rows collect case_when contains 
+#' @importFrom dplyr distinct everything filter group_by left_join mutate n rename 
+#' @importFrom dplyr right_join select slice_max slice_min summarize tbl ungroup `%>%`
+#' 
+#' @importFrom nhdplusTools get_vaa rename_geometry get_node get_flowline_index get_streamorder
+#' 
+#' @importFrom rvest read_html html_nodes html_attr
+#' 
+#' @importFrom httr RETRY write_disk progress
+#' 
+#' @importFrom sf read_sf st_area st_as_sf st_cast st_crs st_collection_extract
+#' @importFrom sf st_drop_geometry st_filter st_layers st_length st_make_valid 
+#' @importFrom sf st_is_empty  st_is_valid st_intersection st_intersects st_precision  
+#' @importFrom sf st_touches st_transform st_union write_sf
+#' 
+#' @importFrom rmapshaper ms_explode ms_dissolve ms_simplify check_sys_mapshaper
+#' 
+#' @importFrom rlang := sym
+#' 
+#' @importFrom stats weighted.mean
+#' 
+#' @importFrom glue glue
+
+
 #nolint start
 # NHDPlus Attributes
 COMID <- FEATUREID <-
@@ -72,23 +96,24 @@ assign("split_lines_event_attributes",
        c("REACHCODE", "FromMeas", "ToMeas"),
        envir = hyrefactor_env)
 
-assign("aggregate_network_attributes",
+assign("aggregate_network_to_outlets_attributes",
        c("ID", "toID", "LevelPathID", "Hydroseq"),
        envir = hyrefactor_env)
 
 assign("get_minimal_network_attributes",
-       c(get("aggregate_network_attributes", 
-           envir = hyrefactor_env), 
+       c(get("aggregate_network_to_outlets_attributes", 
+             envir = hyrefactor_env), 
          "AreaSqKM", "LENGTHKM"),
        envir = hyrefactor_env)
 
 check_names <- function(x, function_name) {
   x <- nhdplusTools::align_nhdplus_names(x)
+  
   names_x <- names(x)
-
+  
   expect_names <- get(paste0(function_name, "_attributes"),
                       envir = hyrefactor_env)
-
+  
   if (!all(expect_names %in% names_x)) {
     stop(paste0("Missing some required attributes in call to: ",
                 function_name, ". Expected: ",
@@ -98,6 +123,8 @@ check_names <- function(x, function_name) {
   }
   return(invisible(x))
 }
+
+# nolint end
 
 get_ds_lengthkm <- function(flines) {
   # This gets all the next-downstream flowlines and finds the
@@ -131,12 +158,4 @@ get_ds_num_upstream <- function(flines) {
 get_ds_joined_fromcomid <- function(flines) {
   flines <- mutate(flines, ds_joined_fromCOMID = joined_fromCOMID)
   flines[["ds_joined_fromCOMID"]][match(flines$toCOMID, flines$COMID)]
-}
-
-drop_geometry <- function(x) {
-  if("sf" %in% class(x)) {
-    sf::st_drop_geometry(x)
-  } else {
-    x
-  }
 }

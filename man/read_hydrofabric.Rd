@@ -11,7 +11,7 @@ read_hydrofabric(
   flowpaths = NULL,
   realization = "all",
   crs = NULL,
-  verbose = Sys.getenv("hydrofab_verbose") != "false"
+  verbose = Sys.getenv("hyRefactor_verbose") != "false"
 )
 }
 \arguments{

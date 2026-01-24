@@ -356,7 +356,7 @@ assign_id = function(x, athres) {
 #' @param index_table index table to aggregate with
 #' @return a list of catchments and flowpaths that have been validated
 #' @noRd
-#' @importFrom dplyr group_by mutate slice_max ungroup select left_join everything filter bind_rows rename `%>%` inner_join
+#' @importFrom dplyr add_count group_by mutate slice_max ungroup select left_join everything filter bind_rows rename `%>%` inner_join
 #' @importFrom sf st_as_sf
 #' @importFrom nhdplusTools get_sorted
 

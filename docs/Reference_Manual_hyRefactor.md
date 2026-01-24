@@ -113,7 +113,7 @@ sf object
 ## Examples
 
 ```r
-path <- system.file("extdata/walker_reconcile.gpkg", package = "hydrofab")
+path <- system.file("extdata/walker_reconcile.gpkg", package = "hyRefactor")
 fps  <- add_lengthmap(flowpaths = sf::read_sf(path),
 length_table = nhdplusTools::get_vaa("lengthkm"))
 ```
@@ -403,7 +403,7 @@ See `[aggregate_network_to_outlets](aggregate_network_to_outlets)`
 ## Examples
 
 ```r
-source(system.file("extdata", "walker_data.R", package = "hydrofab"))
+source(system.file("extdata", "walker_data.R", package = "hyRefactor"))
 outlets <- data.frame(ID = c(31, 3, 5, 1, 45, 92),
  type = c("outlet", "outlet", "outlet", "terminal", "outlet", "outlet"),
  stringsAsFactors = FALSE)
@@ -731,7 +731,7 @@ read_hydrofabric(
   flowpaths = NULL,
   realization = "all",
   crs = NULL,
-  verbose = Sys.getenv("hydrofab_verbose") != "false"
+  verbose = Sys.getenv("hyRefactor_verbose") != "false"
 )
 ```
 

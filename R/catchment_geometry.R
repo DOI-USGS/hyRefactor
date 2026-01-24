@@ -402,7 +402,7 @@ simplify_process = function(catchments, keep, sys, gb = 8, force = TRUE){
 #' @export
 #' @examples
 #' \dontrun{
-#' path <- system.file("extdata/walker_reconcile.gpkg", package = "hydrofab")
+#' path <- system.file("extdata/walker_reconcile.gpkg", package = "hyRefactor")
 #' fps  <- add_lengthmap(flowpaths = sf::read_sf(path),
 #' length_table = nhdplusTools::get_vaa("lengthkm"))
 #' }

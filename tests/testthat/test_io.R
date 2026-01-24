@@ -7,7 +7,7 @@ test_that("gpkg I/O", {
   skip("missing data for this test")
   
   # Data Path
-  gpkg = system.file("extdata", "gauge_01073000.gpkg", package = "hydrofab")
+  gpkg = system.file("extdata", "gauge_01073000.gpkg", package = "hyRefactor")
   
   # Execute Function w/ Default
   data = read_hydrofabric(gpkg, verbose = FALSE)

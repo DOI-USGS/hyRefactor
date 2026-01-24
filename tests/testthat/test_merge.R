@@ -1,6 +1,6 @@
 source(system.file("extdata/new_hope_data.R", package = "hyRefactor"))
 
-Sys.setenv("hydrofab_verbose" = "false")
+Sys.setenv("hyRefactor_verbose" = "false")
 
 test_that("generate lookup table", {
   skip("missing poi_to_outlet function")

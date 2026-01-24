@@ -13,7 +13,7 @@ Description: A collection of tools for manipulating hydrologic and hydraulic net
 URL: https://github.com/DOI-USGS/hyRefactor
 BugReports: https://github.com/DOI-USGS/hyRefactor/issues
 Depends: 
-    R (>= 3.5.0)
+    R (>= 4.1.0)
 Imports: 
     data.table,
     dplyr,
@@ -39,8 +39,9 @@ Imports:
     utils,
     yyjsonr
 Suggests: 
-    testthat
-License: CC0 + LICENSE file
+    testthat,
+    knitr
+License: CC0
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.3
