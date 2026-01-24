@@ -108,5 +108,5 @@ aggregate_to_outlets <- function(gpkg = NULL,
     select(ID) %>% 
     left_join(agg_network$cat_sets, by = "ID")
   
-  return(c(agg_network, list(coastal_sets = coastal)))
+  c(agg_network, list(coastal_sets = coastal))
 }

@@ -75,5 +75,5 @@ append_style <- function(gpkg_path, layer_names) {
         quiet = TRUE
     )
     
-    return(gpkg_path)
+    gpkg_path
 }

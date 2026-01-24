@@ -13,6 +13,8 @@ linters: linters_with_defaults(
   paren_body_linter = NULL,
   commented_code_linter = NULL,
   T_and_F_symbol_linter = NULL,
-  function_left_parentheses_linter = NULL
+  function_left_parentheses_linter = NULL,
+  pipe_consistency_linter = NULL,
+  object_length_linter = NULL
   )
 exclusions: list("tests/testthat/data/prep_test_data.R")
