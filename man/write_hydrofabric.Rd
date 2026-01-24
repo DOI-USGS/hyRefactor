@@ -15,9 +15,7 @@ write_hydrofabric(network_list, outfile, verbose = TRUE, enforce_dm = TRUE)
 
 \item{verbose}{should messages be emitted?}
 
-\item{catchment_name}{the layer name for divides}
-
-\item{flowpath_name}{the layer name for flowpaths}
+\item{enforce_dm}{TODO}
 }
 \value{
 file path

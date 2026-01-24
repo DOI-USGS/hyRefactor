@@ -3,7 +3,12 @@
 #' @param gpkg a starting GPKG
 #' @param flowpaths Reference flowline features
 #' @param catchments Reference catchment features
-#' @param events 	data.frame containing events
+#' @param pois TODO
+#' @param threshold TODO
+#' @param min_area_m TODO
+#' @param snap_distance_m TODO
+#' @param simplify_tolerance_m TODO
+#' @param purge_non_dendritic TODO
 #' @param avoid integer vector of COMIDs to be excluded from collapse modifications.
 #' @param split_flines_meters numeric the maximum length flowpath desired in the output.
 #' @param collapse_flines_meters      numeric the minimum length of inter-confluence flowpath desired in the output.
@@ -219,12 +224,12 @@ refactor  = function (gpkg = NULL,
       ungroup()
 
     if (nrow(check_dups_poi) > 1) {
-      hyRefactorhyaggregate_log("WARN", "Double-check for double POIs")
+      hyaggregate_log("WARN", "Double-check for double POIs")
     } else {
-      hyRefactorhyaggregate_log("SUCCESS", "No double POIs detected")
+      hyaggregate_log("SUCCESS", "No double POIs detected")
     }
 
-    hyRefactorhyaggregate_log("SUCCESS", "Flowlines successfully refactored.")
+    hyaggregate_log("SUCCESS", "Flowlines successfully refactored.")
 
   } else {
     final_outlets = NULL

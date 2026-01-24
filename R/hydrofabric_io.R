@@ -56,11 +56,11 @@ hyaggregate_log = function(level, message, verbose = TRUE){
 #' Read Catchments and Flowpaths from Geopackage
 #' Convenience function for reading two layers into a list
 #' @param gpkg path to geopackage
-#' @param catchment_name name of catchment layer. If NULL, attempts to find divides layer
-#' @param flowpath_name name of flowpath layer. If NULL, attempts to find flowpath layer
-#' @param realization what layers to read? Options: {"catchemnts", "flowpaths", "all"}
+#' @param catchments name of catchment layer. If NULL, attempts to find divides layer
+#' @param flowpaths name of flowpath layer. If NULL, attempts to find flowpath layer
+#' @param realization what layers to read? Options: ("catchemnts", "flowpaths", "all")
 #' @param crs desired CRS, if NULL they stay as read. If all CRS layers arenot
-#' @param vebose should message be emitted?
+#' @param verbose should message be emitted?
 #' @return list
 #' @export
 #' @importFrom sf read_sf st_transform
@@ -135,8 +135,7 @@ read_hydrofabric = function(gpkg = NULL,
 #' and topology layer written to a self contained geopackage
 #' @param network_list a list containing flowpaths and catchments
 #' @param outfile a file (gpkg) where layers should be written
-#' @param catchment_name the layer name for divides
-#' @param flowpath_name the layer name for flowpaths
+#' @param enforce_dm TODO
 #' @param verbose should messages be emitted?
 #' @return file path
 #' @export

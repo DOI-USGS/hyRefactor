@@ -75,4 +75,3 @@ test_that("missing outlet", {
 
 
 Sys.unsetenv("TURN_OFF_SYS_MAPSHAPER")
-

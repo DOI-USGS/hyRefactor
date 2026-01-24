@@ -12,6 +12,18 @@ vignette: >
 ```{r setup, include = FALSE}
 local <- (Sys.getenv("BUILD_VIGNETTES") == "TRUE")
 
+options("rgdal_show_exportToProj4_warnings"="none",
+        rmarkdown.html_vignette.check_title = FALSE)
+library(magrittr)
+sf::sf_use_s2(FALSE)
+
+# Change these paths to your local copy to rerun!
+fdr_path <- 
+  "../../_reference_fabric/reference-hydrofabric/workspace/data/fdrfac/NHDPlusCA/NHDPlus18/NHDPlusFdrFac18c/fdr/"
+fac_path <- 
+  "../../_reference_fabric/reference-hydrofabric/workspace/data/fdrfac/NHDPlusCA/NHDPlus18/NHDPlusFdrFac18c/fac/"
+if(!file.exists(fdr_path)) local <- FALSE
+
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -19,12 +31,6 @@ knitr::opts_chunk$set(
   fig.height=4,
   eval=local
 )
-options("rgdal_show_exportToProj4_warnings"="none",
-        rmarkdown.html_vignette.check_title = FALSE)
-library(magrittr)
-sf::sf_use_s2(FALSE)
-fdr_path <- "../../_reference_fabric/reference-hydrofabric/workspace/data/fdrfac/NHDPlusCA/NHDPlus18/NHDPlusFdrFac18c/fdr/"
-fac_path <- "../../_reference_fabric/reference-hydrofabric/workspace/data/fdrfac/NHDPlusCA/NHDPlus18/NHDPlusFdrFac18c/fac/"
 ```
 
 This article demonstrates how to work with coastal catchments and small coastal basins in an hyRefactor workflow.

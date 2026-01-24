@@ -3,10 +3,12 @@
 #' In cases where a seamless discritization of the landscape is needed, these 
 #' area must be reintroduced from the reference dataset.
 #' @param gpkg a path to a gpkg
-#' @param divide If gpkg is NULL, then an sf data.frame, otherwise a the layer name. See details.
+#' @param divides If gpkg is NULL, then an sf data.frame, otherwise a the layer name. See details.
 #' @param huc12 huc12 to COMID crosswalk
 #' @param reference_gpkg A path to the reference VPU geopackage (see get_hydrofabric(..., type = "reference"))
 #' @param verbose Should messages be emitted?
+#' @param vpu TODO
+#' @param reference_divides TODO
 #' @return gpkg path
 #' @export
 
@@ -18,8 +20,8 @@ add_nonnetwork_divides = function(gpkg = NULL,
                                   reference_divides = NULL,
                                   verbose = TRUE){
   
-  if(is.null(reference_gpkg) & is.null(reference_divides)){ stop('reference_gpkg and reference_divides cannot be NULL')}
-  if(!is.null(reference_gpkg) & !is.null(reference_divides)){ stop('Either reference_gpkg or reference_divides must be NULL')}
+  if(is.null(reference_gpkg) && is.null(reference_divides)){ stop('reference_gpkg and reference_divides cannot be NULL')}
+  if(!is.null(reference_gpkg) && !is.null(reference_divides)){ stop('Either reference_gpkg or reference_divides must be NULL')}
   
   if(!is.null(reference_gpkg)){
     reference_divides = read_hydrofabric(reference_gpkg, verbose = verbose, realization = "catchments")[[1]]

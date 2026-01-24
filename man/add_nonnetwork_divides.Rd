@@ -20,13 +20,17 @@ add_nonnetwork_divides(
 \arguments{
 \item{gpkg}{a path to a gpkg}
 
+\item{vpu}{TODO}
+
+\item{divides}{If gpkg is NULL, then an sf data.frame, otherwise a the layer name. See details.}
+
 \item{huc12}{huc12 to COMID crosswalk}
 
 \item{reference_gpkg}{A path to the reference VPU geopackage (see get_hydrofabric(..., type = "reference"))}
 
-\item{verbose}{Should messages be emitted?}
+\item{reference_divides}{TODO}
 
-\item{divide}{If gpkg is NULL, then an sf data.frame, otherwise a the layer name. See details.}
+\item{verbose}{Should messages be emitted?}
 }
 \value{
 gpkg path

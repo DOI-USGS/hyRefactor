@@ -64,7 +64,7 @@ aggregated_fline <- st_transform(aggregated_fline, crs)
 
 aggregated_cat <- aggregated_cat[match(aggregated_fline$ID, aggregated_cat$ID), ]
 
-new_geom <- do.call(c, lapply(c(1:nrow(aggregated_cat)), function(g) {
+new_geom <- do.call(c, lapply(seq_len(nrow(aggregated_cat)), function(g) {
   split_catchment_divide(catchment = aggregated_cat[g, ], 
                          fline = aggregated_fline[g, ], 
                          fdr = walker_fdr, 

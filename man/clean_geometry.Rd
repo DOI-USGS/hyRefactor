@@ -33,6 +33,8 @@ If NULL, then no simplification will be executed.}
 \item{crs}{integer or object compatible with sf::st_crs coordinate reference.
 Should be a projection that supports area-calculations.}
 
+\item{grid}{TODO}
+
 \item{gb}{The amount of heap memory to be allocated when force = TRUE}
 
 \item{force}{should the mapshaper/mapshaper-xl binaries be used directly for simplification?}

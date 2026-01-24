@@ -204,5 +204,3 @@ test_that("assign global identifiers aggregated", {
   unlink(agg_gpkg_1)
   unlink(agg_gpkg_2)
 })
-
-

@@ -6,7 +6,7 @@ test_that("IO methods", {
 
   out =  read_hydrofabric(gpkg = gpkg, verbose = FALSE)
   
-  expect_equal(  st_crs(out$flowpaths)$epsg, st_crs(out$catchments)$epsg)
+  expect_equal(st_crs(out$flowpaths)$epsg, st_crs(out$catchments)$epsg)
   
   out2 =  read_hydrofabric(gpkg = gpkg, catchments = "divides", flowpaths = "flowpaths")
   

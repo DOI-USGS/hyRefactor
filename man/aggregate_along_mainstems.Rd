@@ -16,13 +16,15 @@ aggregate_along_mainstems(
 \arguments{
 \item{network_list}{a list containing flowline and catchment `sf` objects}
 
+\item{ideal_size_sqkm}{The ideal size of output hydrofabric catchments}
+
 \item{min_area_sqkm}{The minimum allowable size of the output hydrofabric catchments}
 
 \item{min_length_km}{The minimum allowable length of the output hydrofabric flowlines}
 
-\item{ideal_size}{The ideal size of output hydrofabric catchments}
+\item{verbose}{TODO}
 
-\item{term_cut}{cutoff integer to define terminal IDs}
+\item{cache_file}{TODO}
 }
 \value{
 a list containing aggregated and validated flowline and catchment `sf` objects

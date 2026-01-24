@@ -24,9 +24,16 @@ aggregate_to_distribution(
 \arguments{
 \item{gpkg}{a path to a gpkg}
 
+\item{vpu}{TODO}
+
 \item{flowpath}{If gpkg is NULL, then an sf data.frame, otherwise a the layer name. See details.}
 
 \item{divide}{If gpkg is NULL, then an sf data.frame, otherwise a the layer name. See details.}
+
+\item{crs}{TODO}
+
+\item{pois}{data.frame with mandatory "ID" column and optional "POI_ID" column. "ID" must be identifiers from
+flowpath and divide data.frames and POI ID must be unique.}
 
 \item{ideal_size_sqkm}{The ideal size of catchments (default = 10 sqkm)}
 
@@ -40,12 +47,9 @@ aggregate_to_distribution(
 
 \item{overwrite}{overwrite existing gf file. Default is FALSE}
 
+\item{cache}{TODO}
+
 \item{verbose}{print status updates. Default = TRUE}
-
-\item{outlets}{data.frame with mandatory "ID" column and optional "POI_ID" column. "ID" must be identifiers from
-flowpath and divide data.frames and POI ID must be unique.}
-
-\item{nexus_locations}{a data.frame with columns specifying the ID, and the nexus type.}
 }
 \value{
 if outfile = TRUE, a file path, else a list object

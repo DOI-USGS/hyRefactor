@@ -45,7 +45,7 @@ make_hf_gpkg_from_uniform_aggregate = function(gpkg){
         order = order) %>%
       mutate(member = strsplit(member, ","),
              hl_id = as.integer(hl_id)) %>%
-      unnest(col = 'member') %>%
+      unnest(cols = 'member') %>%
       mutate(hf_id_part = sapply( strsplit(member, "[.]"), FUN = function(x){ x[2] }),
              hf_id_part = ifelse(is.na(hf_id_part), 1L, as.integer(hf_id_part)),
              hf_id = sapply( strsplit(member, "[.]"), FUN = function(x){ as.numeric(x[1]) }),
@@ -267,7 +267,7 @@ make_hf_gpkg_from_refactor = function(gpkg){
         hydroseq = hydroseq) %>%
       mutate(member = strsplit(member, ","),
              hl_id = as.integer(hl_id)) %>%
-      unnest(col = 'member') %>%
+      unnest(cols = 'member') %>%
       mutate(hf_id_part = sapply( strsplit(member, "[.]"), FUN = function(x){ x[2] }),
              hf_id_part = ifelse(is.na(hf_id_part), 1L, as.integer(hf_id_part)),
              hf_id = sapply( strsplit(member, "[.]"), FUN = function(x){ as.numeric(x[1]) }),

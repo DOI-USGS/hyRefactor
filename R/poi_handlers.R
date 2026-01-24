@@ -162,6 +162,10 @@ add_lookup_table = function(gpkg = NULL,
     stop("hydrofabrics must be provided.")
   }
   
+  poi_to_outlet <- function(x, verbose) {
+    stop("not implemented")
+  }
+  
   outlets = poi_to_outlet(refactored_gpkg, verbose = FALSE)
   
   lu = read_sf(refactored_gpkg, "lookup_table")
@@ -205,7 +209,7 @@ add_lookup_table = function(gpkg = NULL,
       mainstem_id = levelpathid) %>%
     mutate(member_COMID = strsplit(member_COMID, ","),
            POI_ID = as.integer(POI_ID)) %>%
-    unnest(col = 'member_COMID') %>%
+    unnest(cols = 'member_COMID') %>%
     mutate(NHDPlusV2_COMID_part = sapply( strsplit(member_COMID, "[.]"), FUN = function(x){ x[2] }),
            NHDPlusV2_COMID_part = ifelse(is.na(NHDPlusV2_COMID_part), 1L, as.integer(NHDPlusV2_COMID_part)),
            NHDPlusV2_COMID = sapply( strsplit(member_COMID, "[.]"), FUN = function(x){ as.numeric(x[1]) })

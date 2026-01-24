@@ -39,7 +39,7 @@ test_that("gpkg I/O", {
   expect_true(length(data2) == 2)
   
   outfile = tempfile(fileext = ".gpkg")
-  o = write_hydrofabric(network_list = data2, outfile, catchment_name = 'catchments', verbose = FALSE)
+  o = write_hydrofabric(network_list = data2, outfile, catchment_name = "catchments", verbose = FALSE)
   
   expect_true(layer_exists(o, "flowpaths"))
   expect_true(layer_exists(o, "catchments"))

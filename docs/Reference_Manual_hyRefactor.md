@@ -361,7 +361,7 @@ if outfile = TRUE, a file path, else a list object
 ## Description
 
 Aggregates catchments according to a set of outlet catchments. 
-Network aggregation is completed using: See `[aggregate_network_to_outles](aggregate_network_to_outles)`.
+Network aggregation is completed using: See `[aggregate_network_to_outlets](aggregate_network_to_outlets)`.
 
 ## Usage
 
@@ -391,8 +391,8 @@ flowpath and divide data.frames. "type" should be "outlet", or "terminal".
 "terminal" will be treated as a terminal node with nothing downstream.
 * `zero_order`: list of vectors containing IDs to be aggregated into 0-order catchments.
 * `coastal_cats`: sf data.frame with coastal catchments to be used with zero order.
-* `da_thresh`: numeric See `[aggregate_network_to_outles](aggregate_network_to_outles)`
-* `only_larger`: boolean See `[aggregate_network_to_outles](aggregate_network_to_outles)`
+* `da_thresh`: numeric See `[aggregate_network_to_outlets](aggregate_network_to_outlets)`
+* `only_larger`: boolean See `[aggregate_network_to_outlets](aggregate_network_to_outlets)`
 * `post_mortem_file`: rda file to dump environment to in case of error
 * `keep`: logical passed along to `[clean_geometry](clean_geometry)`
 

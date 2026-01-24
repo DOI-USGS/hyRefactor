@@ -422,17 +422,19 @@ realign_topology = function(network_list,
   filter(divide, divide_id == 'cat-212673')
   filter(divide, divide_id == 'cat-212675')
   
-  if(sum(!fl$toid %in% nex$id) != 0 ){
-    stop('Flowpaths flow to nexus locations that do not exist!\n',
-         paste(st_drop_geometry(fl[which(!fl$toid %in% nex$id),"id"]),"-->", st_drop_geometry(fl[which(!fl$toid %in% nex$id),"toid"]), "\n"), call. = FALSE)
+  if(sum(!fl$toid %in% nex$id) != 0){
+    stop("Flowpaths flow to nexus locations that do not exist!\n",
+         paste(st_drop_geometry(fl[which(!fl$toid %in% nex$id),"id"]),"-->", 
+               st_drop_geometry(fl[which(!fl$toid %in% nex$id),"toid"]), "\n"), 
+         call. = FALSE)
   }
   
-  if(sum(duplicated(divide$divide_id)) != 0 ){
-    stop('Divides have duplicated IDs!!')
+  if(sum(duplicated(divide$divide_id)) != 0){
+    stop("Divides have duplicated IDs!!")
   }
   
-  if(sum(duplicated(fl$id)) != 0 ){
-    stop('Flowlines have duplicated IDs!!')
+  if(sum(duplicated(fl$id)) != 0){
+    stop("Flowlines have duplicated IDs!!")
   }
   
   n = list(flowpaths = select(fl, -type, -topo_type),
@@ -443,7 +445,7 @@ realign_topology = function(network_list,
   
   #write_hydrofabric(n, "data/test_16.gpkg", enforce_dm = FALSE)
   
-  return(n)
+  n
   
 }
 
@@ -519,7 +521,9 @@ apply_nexus_topology = function(gpkg,
   ngen_flows$divides = ngen_flows$divides %>%
     mutate(vpuid =  as.character(vpu)) |>
     select(divide_id, toid, type, ds_id, areasqkm, contains("vpu")) %>%
-    left_join(st_drop_geometry(select(ngen_flows$flowpaths, id, divide_id, lengthkm, tot_drainage_areasqkm )), by = "divide_id") %>%
+    left_join(st_drop_geometry(select(ngen_flows$flowpaths, id, divide_id, 
+                                      lengthkm, tot_drainage_areasqkm )), 
+              by = "divide_id") %>%
     mutate(areasqkm = add_areasqkm(.),
            has_flowline = !is.na(id))
   
@@ -576,17 +580,17 @@ apply_nexus_topology = function(gpkg,
       slice_min(t) %>%
       ungroup()
     
-    sinks = filter(network, type %in% c(c('coastal', "internal"))) %>%
+    sinks = filter(network, type %in% c(c("coastal", "internal"))) %>%
       select(divide_id) %>%
       filter(complete.cases(.)) %>%
-      left_join(select(st_drop_geometry(ngen_flows$divides), divide_id, toid), by = 'divide_id') %>%
-      left_join(select(tmp, -id), by = 'divide_id') %>%
+      left_join(select(st_drop_geometry(ngen_flows$divides), divide_id, toid), by = "divide_id") %>%
+      left_join(select(tmp, -id), by = "divide_id") %>%
       mutate(vpuid = as.character(vpu),
              poi_id = as.integer(poi_id))
     
     
-    ngen_flows$network  = filter(network, !type %in% c(c('coastal', "internal"))) %>%
-      left_join(select(tmp, id, hf_source, hf_id, hf_id_part, hydroseq), by = 'id', relationship = "many-to-many") %>%
+    ngen_flows$network  = filter(network, !type %in% c(c("coastal", "internal"))) %>%
+      left_join(select(tmp, id, hf_source, hf_id, hf_id_part, hydroseq), by = "id", relationship = "many-to-many") %>%
       bind_rows(sinks) %>%
       select(id, toid, divide_id, ds_id, mainstem, poi_id, hydroseq,  #hl_uri,
              hf_source, hf_id, lengthkm, areasqkm, tot_drainage_areasqkm,
@@ -628,8 +632,8 @@ apply_nexus_topology = function(gpkg,
   
   if(!is.null(export_gpkg)){
     write_hydrofabric(ngen_flows, export_gpkg, enforce_dm = enforce_dm)
-    return(export_gpkg)
+    export_gpkg
   } else {
-    return(ngen_flows)
+    ngen_flows
   }
 }

@@ -2,7 +2,8 @@ context("coastal aggregation")
 
 Sys.setenv(TURN_OFF_SYS_MAPSHAPER = "YUP")
 
-# bbox <- sf::st_bbox(c(xmin = -124.383377, ymin = 39.765797, xmax = -123.705239, ymax = 40.377652), crs = sf::st_crs(4326))
+# bbox <- sf::st_bbox(c(xmin = -124.383377, ymin = 39.765797,
+#                       xmax = -123.705239, ymax = 40.377652), crs = sf::st_crs(4326))
 # plot_nhdplus(bbox = bbox, gpkg = "tests/testthat/data/coastal.gpkg", overwrite = TRUE)
 
 source_gpkg <- list.files(pattern = "coastal.gpkg$",

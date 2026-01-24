@@ -17,15 +17,15 @@ read_hydrofabric(
 \arguments{
 \item{gpkg}{path to geopackage}
 
-\item{realization}{what layers to read? Options: {"catchemnts", "flowpaths", "all"}}
+\item{catchments}{name of catchment layer. If NULL, attempts to find divides layer}
+
+\item{flowpaths}{name of flowpath layer. If NULL, attempts to find flowpath layer}
+
+\item{realization}{what layers to read? Options: ("catchemnts", "flowpaths", "all")}
 
 \item{crs}{desired CRS, if NULL they stay as read. If all CRS layers arenot}
 
-\item{catchment_name}{name of catchment layer. If NULL, attempts to find divides layer}
-
-\item{flowpath_name}{name of flowpath layer. If NULL, attempts to find flowpath layer}
-
-\item{vebose}{should message be emitted?}
+\item{verbose}{should message be emitted?}
 }
 \value{
 list

@@ -175,7 +175,7 @@ split_lines <- function(input_lines,
   
   if(is.logical(input_lines$split_fID)) input_lines$split_fID <- as.character(input_lines$split_fID)
   
-  return(input_lines)
+  input_lines
 }
 
 new_line <- function(i, f, t, l) {

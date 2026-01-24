@@ -114,6 +114,7 @@ flowpaths_to_linestrings = function(flowpaths){
 #' @param gb The amount of heap memory to be allocated when force = TRUE
 #' @param sys logical should the mapshaper system library be used. If NULL 
 #' the system library will be used if available.
+#' @param grid TODO
 #' @return sf object
 #' @export
 

@@ -18,10 +18,11 @@ add_network_type = function(network_list, verbose = TRUE) {
 #' @description Given a set of ideal catchment sizes, plus the
 #' minimum allowable catchment size and segment length, aggregate the network along mainstems.
 #' @param network_list a list containing flowline and catchment `sf` objects
-#' @param ideal_size The ideal size of output hydrofabric catchments
+#' @param ideal_size_sqkm The ideal size of output hydrofabric catchments
 #' @param min_area_sqkm The minimum allowable size of the output hydrofabric catchments
 #' @param min_length_km The minimum allowable length of the output hydrofabric flowlines
-#' @param term_cut cutoff integer to define terminal IDs
+#' @param verbose TODO
+#' @param cache_file TODO
 #' @return a list containing aggregated and validated flowline and catchment `sf` objects
 #' @export
 #' @importFrom dplyr filter group_by arrange mutate ungroup select distinct
@@ -175,14 +176,14 @@ cs_group <- function(areas,
   
   o4 = lapply(1:length(sub_areas), function(i) {
     middle_massage(x = sub_areas[[i]],
-                   ind = o3[[i]],
-                   thres = amin)
+                   index_values = o3[[i]],
+                   threshold = amin)
   })
   
   o5 = lapply(1:length(sub_lengths), function(i) {
     middle_massage(x = sub_lengths[[i]],
-                   ind = o4[[i]],
-                   thres = lmin)
+                   index_values = o4[[i]],
+                   threshold = lmin)
   })
   
   for (i in 1:length(o5)) {

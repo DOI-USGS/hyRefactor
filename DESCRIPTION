@@ -9,7 +9,7 @@ Authors@R: c(person(given = "Mike", family = "Johnson",
             person("David", "Blodgett", 
                     role = c("aut", "cre"), 
                     email = "dblodgett@usgs.gov"))
-Description: A collection of tools for manipulating hydrologic and hydraulic networks 
+Description: A collection of tools for manipulating hydrologic and hydraulic networks.
 URL: https://github.com/DOI-USGS/hyRefactor
 BugReports: https://github.com/DOI-USGS/hyRefactor/issues
 Depends: 
@@ -37,12 +37,13 @@ Imports:
     tidyr,
     units,
     utils,
-    yyjsonr
+    yyjsonr,
+    future,
+    methods
 Suggests: 
     testthat,
     knitr
 License: CC0
 Encoding: UTF-8
-LazyData: true
 RoxygenNote: 7.3.3
 VignetteBuilder: knitr
