@@ -57,9 +57,10 @@ flowline <- dplyr::bind_rows(
                                 mode = "UT", distance_km = 999)$UT_flowlines
 }))
 
-sub <- lapply(nhdplusTools::subset_nhdplus(c(as.integer(flowline$nhdplus_comid), coastal$COMID), 
-                                    nhdplus_data = "download", flowline_only = FALSE),
-              nhdplusTools::align_nhdplus_names)
+sub <- nhdplusTools::subset_nhdplus(c(as.integer(flowline$nhdplus_comid), coastal$COMID), 
+                                    nhdplus_data = "download", flowline_only = FALSE)
+
+sub <- lapply(sub, nhdplusTools::align_nhdplus_names)
 
 plt <- function(x) sf::st_geometry(sf::st_transform(x, 3857))
 
@@ -194,7 +195,7 @@ mapped_outlets <- map_outlet_ids(keep_outlets, reconciled) %>%
 
 zero_order <- list(basin = little_terminal$COMID, zero = coastal$COMID)
 
-agg_cats <- aggregate_catchments(flowpath = reconciled, 
+agg_cats <- aggregate_to_outlets(flowpath = reconciled, 
                                  divide = divides, 
                                  outlets = dplyr::select(mapped_outlets, ID, type),
                                  zero_order = zero_order,

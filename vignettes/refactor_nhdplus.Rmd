@@ -174,7 +174,7 @@ collapsed_flines <- collapse_flowlines(collapsed_flines,
     inner_join(collapsed_flines, by = "COMID") %>%
     st_as_sf() %>%
     st_transform(4326) %>%
-    st_write("nhdplus_collapsed.gpkg", layer_options = "OVERWRITE=YES", quiet = TRUE)
+    write_sf("nhdplus_collapsed.gpkg", quiet = TRUE)
 ```
 
 ```{r collapse2_secret, echo=FALSE}
@@ -213,7 +213,7 @@ collapsed <- reconcile_collapsed_flowlines(collapsed_flines,
 
 collapsed$member_COMID <- sapply(collapsed$member_COMID, paste, collapse = ",")
 
-st_write(st_transform(collapsed, 4326), "nhdplus_reconciled.gpkg", layer_options = "OVERWRITE=YES")
+write_sf(st_transform(collapsed, 4326), "nhdplus_reconciled.gpkg")
 ```
 
 ```{r reconcile_secret, echo=FALSE}

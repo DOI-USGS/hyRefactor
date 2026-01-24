@@ -5,7 +5,7 @@
 #' @param source_outlets data.frame with COMID and type columns
 #' @param reconciled data.frame as returned by refactor workflow
 #' @importFrom dplyr select mutate
-#' @noRd
+#' @export
 map_outlet_ids <- function(source_outlets, reconciled) {
 
   source_outlets <- sf::st_drop_geometry(source_outlets)

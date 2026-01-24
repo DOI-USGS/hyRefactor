@@ -324,51 +324,6 @@ reconcile_catchment_divides <- function(catchment,
   }
 }
 
-par_split_cat <- function(fid, to_split_ids, 
-                          fline_ref, 
-                          catchment, 
-                          fdr, 
-                          fac,
-                          min_area_m, 
-                          snap_distance_m,
-                          simplify_tolerance_m, 
-                          vector_crs) {
-  out <- NULL
-  try({
-    
-    message(paste0(Sys.time(), " par_split_cat() on pid: ", 
-                   Sys.getpid(), " catchment: ", fid))
-    
-    if(!inherits(fdr, "SpatRaster")){
-      fdr = terra::rast(fdr)
-    }
-    
-    if(!inherits(fac, "SpatRaster")){
-      fac = terra::rast(fac)
-    }
-    
-    split_set <- to_split_ids[which(grepl(paste0("^", as.character(fid)), to_split_ids))]
-    to_split_flines <- dplyr::filter(fline_ref, COMID %in% split_set)
-    to_split_cat    <- dplyr::filter(catchment, FEATUREID == fid)
-    
-    split_cats <- split_catchment_divide(catchment = to_split_cat,
-                                         fline = to_split_flines,
-                                         fdr = fdr,
-                                         fac = fac, 
-                                         lr = FALSE,
-                                         min_area_m = min_area_m, 
-                                         snap_distance_m = snap_distance_m,
-                                         simplify_tolerance_m = simplify_tolerance_m, 
-                                         vector_crs = vector_crs)
-    
-    out <- sf::st_sf(FEATUREID = to_split_flines$COMID,
-                     geom = sf::st_cast(split_cats, "MULTIPOLYGON"), 
-                     stringsAsFactors = FALSE)
-  }, silent = FALSE)
-  
-  return(out)
-}
-
 par_split_cat <- function(fid, 
                           to_split_ids, 
                           fline_ref, 

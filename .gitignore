@@ -9,5 +9,5 @@ inst/doc
 *.cache
 *.gpkg
 dead
-
 /.quarto/
+.Renviron
