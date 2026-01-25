@@ -18,7 +18,7 @@ get_neighbor_df <- function(row, col, nrow_mat, ncol_mat) {
   if (row == 0) neighbors <- neighbors[!rownames(neighbors) %in% c("northwest", "north", "northeast"), ]
   if (col == 0) neighbors <- neighbors[!rownames(neighbors) %in% c("southwest", "west", "northwest"), ]
 
-  return(neighbors)
+  neighbors
 }
 
 find_upstream <- function(row_col, fdr_matrix) {
@@ -56,8 +56,8 @@ find_upstream <- function(row_col, fdr_matrix) {
     
   }
   
-
-  return(neighbor_ind[which(fdr_matrix[neighbor_ind] == flow_to_val), , drop = FALSE])
+  neighbor_ind[which(fdr_matrix[neighbor_ind] == flow_to_val), , drop = FALSE]
+  
 }
 
 collect_upstream <- function(row_col, fdr_matrix, fac_matrix = NULL, flowpath_mode = FALSE) {
@@ -100,7 +100,7 @@ collect_upstream <- function(row_col, fdr_matrix, fac_matrix = NULL, flowpath_mo
     }
   }
 
-  return(out_cells[1:check_cell_counter, ])
+  out_cells[1:check_cell_counter, ]
 }
 
 flowpath_filter <- function(us, fac_matrix) {
@@ -114,7 +114,7 @@ flowpath_filter <- function(us, fac_matrix) {
     us <- us[1, ]
   }
   
-  return(us)
+  us
 }
 
 
@@ -306,7 +306,7 @@ split_catchment_divide <- function(catchment, fline, fdr, fac, lr = FALSE,
     return(split_lr(cat = out, fline, fdr, fac_matrix, fdr_matrix))
   }
   
-  return(out)
+  out
 }
 
 split_lr <- function(cat, fline, fdr, fac_matrix, fdr_matrix) {
@@ -375,7 +375,7 @@ get_row_col <- function(fdr, start, fac_matrix) {
     row_col[2] <- new_rc$col
   }
   
-  return(row_col)
+  row_col
 }
 
 #' Prep catchment with FDR/FAC
@@ -402,10 +402,10 @@ prep_cat_fdr_fac <- function(cat, fdr, fac) {
   fdr_matrix <- terra::as.matrix(fdr, wide=TRUE)
   fac_matrix <- terra::as.matrix(fac, wide=TRUE)
   
-  return(list(fdr_matrix = fdr_matrix, 
-              fac_matrix = fac_matrix,
-              fdr = fdr,
-              fac = fac))
+  list(fdr_matrix = fdr_matrix, 
+       fac_matrix = fac_matrix,
+       fdr = fdr,
+       fac = fac)
 }
 
 check_proj <- function(catchment, fline, fdr = NULL) {
@@ -424,7 +424,7 @@ check_proj <- function(catchment, fline, fdr = NULL) {
       stop(er)
     }
   }
-  return(invisible(1))
+  invisible(1)
 }
 
 #' trace downstream (raindrop trace)

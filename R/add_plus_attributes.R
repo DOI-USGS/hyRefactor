@@ -131,7 +131,7 @@ add_plus_network_attributes <- function(net, override = 5,
     # independent, we need to lag them so they don't have overlapping identifiers.
     start_ts <- 0
 
-    for(i in 1:length(lp)) {
+    for(i in seq_along(lp)) {
 
       lp[[i]]$levelpath <- lp[[i]]$levelpath + start_ts
       lp[[i]]$topo_sort <- lp[[i]]$topo_sort + start_ts
@@ -232,7 +232,7 @@ add_plus_network_attributes <- function(net, override = 5,
 
 calculate_arbolate_sum <- function(x) {
   
-  return(accumulate_downstream(x, "length"))
+  accumulate_downstream(x, "length")
   
 }
 
@@ -245,8 +245,8 @@ get_levelpaths_internal <- function(x, override_factor) {
   x <- add_levelpaths(x, weight_attribute = "weight", name_attribute = "nameID",
                       override_factor = override_factor)
   
-  return(as.data.frame(select(x, all_of(c("ID" = "id", "outletID" = "levelpath_outlet_id",
-                                          "topo_sort" = "topo_sort", "levelpath" = "levelpath")))))
+  as.data.frame(select(x, all_of(c("ID" = "id", "outletID" = "levelpath_outlet_id",
+                                   "topo_sort" = "topo_sort", "levelpath" = "levelpath"))))
 }
 
 #' Total Drainage Area
@@ -276,6 +276,6 @@ get_levelpaths_internal <- function(x, override_factor) {
 
 calculate_total_drainage_area <- function(x) {
   
-  return(accumulate_downstream(x, "area"))
+  accumulate_downstream(x, "area")
   
 }

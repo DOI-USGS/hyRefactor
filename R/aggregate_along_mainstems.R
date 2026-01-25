@@ -89,13 +89,14 @@ aggregate_along_mainstems = function(network_list,
     mutate(flowline_id = paste(id, collapse = ","),
            member_comid = paste(member_comid, collapse = ",")) |> 
     ungroup() |> 
-    select(id = set, flowline_id, member_comid ) |> 
+    select(id = set, flowline_id, member_comid) |> 
     distinct()
   
   hyaggregate_log(
     "SUCCESS",
     glue(
-      "Merged to idealized catchment size of {ideal_size_sqkm} sqkm: {nrow(network_list$flowpaths) - nrow(v$flowpaths)} features removed"
+      paste("Merged to idealized catchment size of {ideal_size_sqkm}", 
+            "sqkm: {nrow(network_list$flowpaths) - nrow(v$flowpaths)} features removed")
     ),
     verbose
   )
@@ -110,18 +111,22 @@ aggregate_along_mainstems = function(network_list,
     rm(tmp)
   }
   
-  return(v)
+  v
   
 }
 
 #' Cumulative sum area grouping
 #' @description This function takes a vector of areas and lengths and returns a
-#' index vector that combines them towards an ideal aggregate area (ideal_size_sqkm). While enforcing a minimum area (amin) and length (lmin).
-#' Additionally, this function can take a set of indexes to exclude over which the network cannot be aggregated.
+#' index vector that combines them towards an ideal aggregate area (ideal_size_sqkm). 
+#' While enforcing a minimum area (amin) and length (lmin).
+#' Additionally, this function can take a set of indexes to exclude over which the 
+#' network cannot be aggregated.
 #' @param areas a vector of areas
 #' @param lengths a vector of lengths
-#' @param exclude_dn a vector of equal length to areas and lengths. Any non NA value will be used to enforce an aggregation break on the outflow node of a flowpath
-#' @param exclude_un a vector of equal length to areas and lengths. Any non NA value will be used to enforce an aggregation break on the inflow node of a flowpath
+#' @param exclude_dn a vector of equal length to areas and lengths. Any non NA value 
+#' will be used to enforce an aggregation break on the outflow node of a flowpath
+#' @param exclude_un a vector of equal length to areas and lengths. Any non NA value 
+#' will be used to enforce an aggregation break on the inflow node of a flowpath
 #' @param ideal_size_sqkm a vector of areas
 #' @param amin a threshold, or target, cumulative size
 #' @param lmin a threshold, or target, cumulative size
@@ -162,31 +167,31 @@ cs_group <- function(areas,
   
   o1 = lapply(sub_areas, assign_id, athres = ideal_size_sqkm)
   
-  o2 = lapply(1:length(sub_areas), function(i) {
+  o2 = lapply(seq_along(sub_areas), function(i) {
     pinch_sides(x = sub_areas[[i]],
                 ind = o1[[i]],
                 thres = amin)
   })
   
-  o3 = lapply(1:length(sub_lengths), function(i) {
+  o3 = lapply(seq_along(sub_lengths), function(i) {
     pinch_sides(x = sub_lengths[[i]],
                 ind = o2[[i]],
                 thres = lmin)
   })
   
-  o4 = lapply(1:length(sub_areas), function(i) {
+  o4 = lapply(seq_along(sub_areas), function(i) {
     middle_massage(x = sub_areas[[i]],
                    index_values = o3[[i]],
                    threshold = amin)
   })
   
-  o5 = lapply(1:length(sub_lengths), function(i) {
+  o5 = lapply(seq_along(sub_lengths), function(i) {
     middle_massage(x = sub_lengths[[i]],
                    index_values = o4[[i]],
                    threshold = lmin)
   })
   
-  for (i in 1:length(o5)) {
+  for (i in seq_along(o5)) {
     o5[[i]] = o5[[i]] + 1e9 * i
   }
   
@@ -247,7 +252,7 @@ middle_massage = function(x, index_values, threshold) {
   if (any(tmp_areas < threshold)) {
     tmp = which(tmp_areas < threshold)
     
-    for (j in 1:length(tmp)) {
+    for (j in seq_along(tmp)) {
       base = as.numeric(tmp[j])
       edges = c(base - 1, base + 1)
       becomes = names(which.min(tmp_areas[edges]))
@@ -274,11 +279,11 @@ middle_massage = function(x, index_values, threshold) {
 #' @noRd
 
 agg_length_area   <- function(l, a, lthres, athres) {
-  ids = 1:length(l)
+  ids = seq_along(l)
   
   if (length(ids) != 1) {
     if (!is.null(lthres)) {
-      for (i in 1:(length(l) - 1)) {
+      for (i in seq_len((length(l) - 1))) {
         if (l[i] < lthres) {
           ids[(i + 1):length(l)] = ids[(i + 1):length(l)] - 1
           l[i + 1] = l[i] + l[i + 1]
@@ -290,7 +295,7 @@ agg_length_area   <- function(l, a, lthres, athres) {
     }
     
     if (!is.null(athres)) {
-      for (i in 1:(length(a) - 1)) {
+      for (i in seq_len((length(a) - 1))) {
         if (a[i] < athres) {
           ids[(i + 1):length(a)] = ids[(i + 1):length(a)] - 1
           a[i + 1] = a[i] + a[i + 1]
@@ -306,12 +311,12 @@ agg_length_area   <- function(l, a, lthres, athres) {
       lthres = 0
     }
     
-    if (a[length(a)] < athres | l[length(l)] < lthres) {
+    if (a[length(a)] < athres || l[length(l)] < lthres) {
       ids[length(ids)] = pmax(1, ids[length(ids)] - 1)
     }
   }
   
-  return (ids)
+  ids
 }
 
 
@@ -339,7 +344,7 @@ assign_id = function(x, athres) {
   group  <- 1
   result <- numeric()
   
-  for (i in 1:length(x)) {
+  for (i in seq_along(x)) {
     cumsum <- cumsum + x[i]
     if (cumsum > athres) {
       group <- group + 1
@@ -348,7 +353,7 @@ assign_id = function(x, athres) {
     result = c(result, group)
   }
   
-  return (result)
+  result
 }
 
 
@@ -357,7 +362,8 @@ assign_id = function(x, athres) {
 #' @param index_table index table to aggregate with
 #' @return a list of catchments and flowpaths that have been validated
 #' @noRd
-#' @importFrom dplyr add_count group_by mutate slice_max ungroup select left_join everything filter bind_rows rename `%>%` inner_join
+#' @importFrom dplyr add_count group_by mutate slice_max ungroup select 
+#' @importFrom dplyr left_join everything filter bind_rows rename `%>%` inner_join
 #' @importFrom sf st_as_sf
 #' @importFrom nhdplusTools get_sorted
 
@@ -410,7 +416,7 @@ aggregate_sets = function(network_list, index_table) {
       inner_join(network_list$flowpaths, by = "id") %>%
       st_as_sf() %>%
       select(set) %>%
-      union_linestrings('set') %>%
+      union_linestrings("set") %>%
       rename_geometry("geometry")
   }, error = function(e) {
     NULL
@@ -437,7 +443,7 @@ aggregate_sets = function(network_list, index_table) {
       inner_join(network_list$catchments, by = "id") %>%
       st_as_sf() %>%
       select(set) %>%
-      union_polygons('set') %>%
+      union_polygons("set") %>%
       mutate(areasqkm = add_areasqkm(.))
   }, error = function(e) {
     NULL
@@ -461,7 +467,7 @@ aggregate_sets = function(network_list, index_table) {
     
     if (nrow(mps) > nrow(catchments_out)) {
       fixers = filter(mps, n > 1) %>%
-        mutate(areasqkm = add_areasqkm(.), tmpID = 1:n()) %>%
+        mutate(areasqkm = add_areasqkm(.), tmpID = seq_len(n())) %>%
         group_by(id)
       
       keep = slice_max(fixers, areasqkm) %>%

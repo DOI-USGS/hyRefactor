@@ -26,9 +26,9 @@ layer_exists = function(gpkg, name){
   if(!file.exists(gpkg)){ return(FALSE) }
   
   if(name %in% st_layers(gpkg)$name){
-    return(TRUE)
+    TRUE
   } else {
-    return(FALSE)
+    FALSE
   }
 }
 
@@ -83,7 +83,7 @@ read_hydrofabric = function(gpkg = NULL,
     gpkg = normalizePath(gpkg)
     hyaggregate_log(level = "INFO", message = glue("\n--- Read in data from {gpkg} ---\n"), verbose)
     
-    if(is.null(flowpaths) & realization != "catchments"){
+    if(is.null(flowpaths) && realization != "catchments"){
       flowpaths = grep("flowpath|flowline", st_layers(gpkg)$name, value = TRUE)
       flowpaths = flowpaths[!grepl("attributes|edge_list", flowpaths)]
       if(length(flowpaths) > 1){ stop("Multiple flowpath names found.")}
@@ -92,7 +92,7 @@ read_hydrofabric = function(gpkg = NULL,
                       verbose)
     }
     
-    if(is.null(catchments) & realization != "flowpaths"){
+    if(is.null(catchments) && realization != "flowpaths"){
       catchments = grep("divide|catchment", st_layers(gpkg)$name, value = TRUE)
       catchments = catchments[!grepl("network", catchments)]
       if(length(catchments) > 1){ stop("Multiple catchment names found.")}
@@ -125,7 +125,7 @@ read_hydrofabric = function(gpkg = NULL,
     }
   }
   
-  return(out)
+  out
   
 }
 
@@ -151,17 +151,17 @@ write_hydrofabric = function(network_list,
   
   if(!enforce_dm){
     if(length(names_nl) > 0){
-    for(i in 1:length(names_nl)){
+    for(i in seq_along(names_nl)){
       write_sf(network_list[[names_nl[i]]], outfile, names_nl[i], overwrite = TRUE)
     }
   }
   
-    return(outfile) 
+    outfile 
   
   } else {
 
     if(!"WB" %in% names(network_list)){
-     for(i in 1:length(hf_dm)){
+     for(i in seq_along(hf_dm)){
        hf_dm[[names(hf_dm)[i]]] = select(hf_dm[[names(hf_dm)[i]]],
                                          -any_of("wb_id"))
      }
@@ -218,7 +218,7 @@ write_hydrofabric = function(network_list,
    }
    
    if("nexus" %in% names(network_list)){
-     nex_dm = c('id', 'toid', 'hl_id', 'type')
+     nex_dm = c("id", "toid", "hl_id", "type")
      write_dm_model(data = network_list$nexus, dm = nex_dm, outfile, "nexus")
    }
    
@@ -226,10 +226,10 @@ write_hydrofabric = function(network_list,
    left_overs = names_nl[!names_nl %in% c(names(hf_dm), "nexus")]
    
    if(length(left_overs) > 0){
-     lapply(1:length(left_overs), function(x){ write_sf(network_list[[left_overs[x]]], outfile, left_overs[x])})
+     lapply(seq_along(left_overs), function(x){ write_sf(network_list[[left_overs[x]]], outfile, left_overs[x])})
    }
     
-    return(outfile) 
+    outfile 
     
   }
 }

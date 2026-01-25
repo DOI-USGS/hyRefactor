@@ -15,7 +15,7 @@ define_touch_id = function(flowpaths, term_cut = 1e9){
   flowpaths[786,] |> 
     t()
   
-  ends = rename_geometry(tmp, 'geometry') %>%
+  ends = rename_geometry(tmp, "geometry") %>%
     mutate(geometry = get_node(., "end")$geometry)
   
   starts_ends = bind_rows(get_node(tmp, "start"), get_node(tmp, "end"))
@@ -95,7 +95,8 @@ build_collapse_table = function(network_list,
     filter(!id == touches) %>%
     # group_by ID
     group_by(id) %>% 
-    # If the bad fp touches is topo toid, the bad id will become the min (most downstream) toid or the id it touches (most downstream)
+    # If the bad fp touches is topo toid, the bad id will become the min 
+    # (most downstream) toid or the id it touches (most downstream)
     mutate(becomes = ifelse(any(toid == touches), min(toid), min(touches))) |>
     ungroup()   %>%
     filter(!id %in% becomes) %>% 
@@ -109,7 +110,7 @@ build_collapse_table = function(network_list,
     ungroup()
     
   tmp_id2 = tmp_id %>% 
-    left_join(touch_id, by = c('becomes' = 'id')) %>% 
+    left_join(touch_id, by = c("becomes" = "id")) %>% 
     filter(is.na(type))
 
   df = df %>% 
@@ -201,5 +202,5 @@ collapse_headwaters = function(network_list,
     rm(tmp)
   }
   
-  return(network_list)
+  network_list
 }

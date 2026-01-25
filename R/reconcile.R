@@ -62,7 +62,7 @@ reconcile_collapsed_flowlines <- function(flines, geom = NULL, id = "COMID") {
   new_flines <-
     left_join(new_flines,
               data.frame(becomes = unique(new_flines$becomes),
-                         ID = seq_len(length(unique(new_flines$becomes))),
+                         ID = seq_along(unique(new_flines$becomes)),
                          stringsAsFactors = FALSE),
               by = "becomes")
   
@@ -79,7 +79,7 @@ reconcile_collapsed_flowlines <- function(flines, geom = NULL, id = "COMID") {
 
   new_flines <- left_join(new_flines,
                           data.frame(ID = unique(new_flines$ID),
-                                     ID_Hydroseq = seq_len(length(unique(new_flines$ID)))),
+                                     ID_Hydroseq = seq_along(unique(new_flines$ID))),
                           by = "ID")
 
   new_lp <- group_by(new_flines, .data$LevelPathI) %>%
@@ -126,7 +126,7 @@ reconcile_collapsed_flowlines <- function(flines, geom = NULL, id = "COMID") {
       sf::st_as_sf()
   }
   
-  return(new_flines)
+  new_flines
 }
 
 #' @title Reconcile Catchment Divides
@@ -183,7 +183,7 @@ reconcile_catchment_divides <- function(catchment,
   fline_ref <- rename_geometry(fline_ref, "geom")
   fline_rec <- rename_geometry(fline_rec, "geom")
   
-  if(!is.null(fdr) & !is.null(fac)){
+  if(!is.null(fdr) && !is.null(fac)){
     
     fdr_temp <- fdr
     
@@ -372,7 +372,7 @@ par_split_cat <- function(fid,
                                         stringsAsFactors = FALSE)
   }, silent = FALSE)
   
-  return(out)
+  out
 }
 
 get_split_cats <- function(cats, split_cats, cache = NULL) {

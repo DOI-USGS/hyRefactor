@@ -13,7 +13,7 @@ build_headwater_collapse = function(network_list,
   divide_touch_id = st_intersects(network_list$catchments)
 
   divide_touches = data.frame(
-    id            = rep(  network_list$catchments$id, times = lengths(divide_touch_id)),
+    id            = rep(network_list$catchments$id, times = lengths(divide_touch_id)),
     becomes       =   network_list$catchments$id[unlist(divide_touch_id)]
   ) 
   
@@ -64,7 +64,7 @@ collapse_headwaters2 = function(network_list,
   hyaggregate_log("INFO", "\n--- Collapse Network Inward ---\n", verbose)
   
   network_list$flowpaths =  network_list$flowpaths |> 
-    left_join(select(network_list$lookup, id, flowline_id), by = 'id')
+    left_join(select(network_list$lookup, id, flowline_id), by = "id")
   
   start <- nrow(network_list$flowpaths)
   
@@ -122,9 +122,5 @@ collapse_headwaters2 = function(network_list,
     rm(tmp)
   }
   
-  return(network_list)
+  network_list
 }
-
-
-
-

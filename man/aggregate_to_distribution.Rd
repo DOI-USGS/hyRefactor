@@ -61,7 +61,8 @@ locations can be provided over which the network cannot be aggregated (see poi_t
 }
 \details{
 If gpkg is not NULL, divide and flowpath can be left NULL as well. The code attempts to
-infer the correct layers. The divides layer will be the one including the word "divide" or "catchment" and the
-flowpath layer will be the one including 'flowpath' or 'flowline'. If no layers, or more then one layer are deemed possible
+infer the correct layers. The divides layer will be the one including the word 
+"divide" or "catchment" and the flowpath layer will be the one including 
+'flowpath' or 'flowline'. If no layers, or more then one layer are deemed possible
 for each input, then the function will stop and ask for explicit names.
 }

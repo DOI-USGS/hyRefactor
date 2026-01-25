@@ -41,7 +41,7 @@ prepare_network = function(network_list) {
   # Add a hydrosequence to the flowpaths
   
   network_list$flowpaths = network_list$flowpaths |> 
-    select(-any_of(c('topo_sort', 'hydroseq')))
+    select(-any_of(c("topo_sort", "hydroseq")))
     
   network_list$flowpaths = hydroloom::add_topo_sort(network_list$flowpaths) |> 
     rename(hydroseq = topo_sort)
@@ -49,8 +49,6 @@ prepare_network = function(network_list) {
   network_list = add_measures(network_list$flowpaths, network_list$catchments)
   
   network_list$flowpaths = mutate(network_list$flowpaths, areasqkm = ifelse(is.na(areasqkm), 0, areasqkm))
- #network_list$flowpaths$order = get_streamorder(st_drop_geometry(mutate(select(network_list$flowpaths, ID = id, toID = toid), divergence = 0)))
- 
   
   network_list$flowpaths$tot_drainage_area = accumulate_downstream(network_list$flowpaths, "areasqkm")
     
@@ -83,10 +81,11 @@ check_network_validity     <- function(network_list,
   if(!check){ return(list(flowpaths = fl, catchments = cat))}
   
   DAG               = network_is_dag(flowpaths)
-  CONNECTION        = sum(!(flowpaths$toid %in% flowpaths$id | flowpaths$toid > term_cut | flowpaths$toid == 0)) == 0
+  CONNECTION        = sum(!(flowpaths$toid %in% flowpaths$id | flowpaths$toid > term_cut | 
+                              flowpaths$toid == 0)) == 0
   
   if(all(DAG,  CONNECTION)){
-    return(list(flowpaths = flowpaths, catchments = cat))
+    list(flowpaths = flowpaths, catchments = cat)
   } else {
     if(!DAG){ stop("Network is not a graph.")}
     if(!CONNECTION){stop("All toIDs are not present in network.")}
@@ -126,7 +125,7 @@ add_hydroseq = function(flowpaths) {
   
   topo = get_sorted(st_drop_geometry(select(flowpaths, id, toid)), split = FALSE)
   
-  topo['hydroseq'] = 1:nrow(topo)
+  topo["hydroseq"] = seq_len(nrow(topo))
   
   left_join(flowpaths, select(topo, id, hydroseq), by = "id")
   
@@ -213,7 +212,7 @@ drop_extra_features = function(network_list, verbose){
                         catchments = filter(network_list$catchments, id %in% network_list$flowpaths$id))
   }
   
-  return(network_list)
+  network_list
   
 }
 
@@ -237,15 +236,15 @@ describe_hydrofabric = function(network_list, verbose = TRUE){
                     glue("{counts[1]} {names(counts)[1]} vs. {counts[2]} {names(counts)[2]}"),
                     verbose)
     
-    return(FALSE)
+    FALSE
     
   } else {
     
-    hyaggregate_log( "INFO",
-                     glue("{counts[1]} features in network."),
-                     verbose)
+    hyaggregate_log("INFO",
+                    glue("{counts[1]} features in network."),
+                    verbose)
     
-    return(FALSE)
+    FALSE
     
   }
 }

@@ -14,10 +14,12 @@
 #' @param collapse_flines_meters      numeric the minimum length of inter-confluence flowpath desired in the output.
 #' @param collapse_flines_main_meters numeric the minimum length of between-confluence flowpaths.
 #' @param cores   integer number of cores to use for parallel execution
-#' @param keep    Defines the proportion of points to retain in geometry simplification (0-1; default .9). See ms_simplify.
+#' @param keep    Defines the proportion of points to retain in geometry 
+#' simplification (0-1; default .9). See ms_simplify.
 #' @param fac  path to flow accumulation grid. If NULL (default) then catchments are NOT reconciled.
 #' @param fdr  path to flow direction grid. If NULL (default) then catchments are NOT reconciled.
-#' @param keep proportion of points to retain in geometry simplification (0-1; default 0.05). See ms_simplify. If NULL, then no simplification will be executed.
+#' @param keep proportion of points to retain in geometry simplification (0-1; default 0.05). 
+#' See ms_simplify. If NULL, then no simplification will be executed.
 #' @param outfile path to geopackage to write refactored_flowlines, and if facfdr != NULL, refactored catchments.
 #' @return data to the specified gpkg
 #' @export
@@ -42,8 +44,8 @@ refactor  = function (gpkg = NULL,
                       outfile = NULL) {
   
   network_list = read_hydrofabric(gpkg, catchments, flowpaths)
-  network_list$catchments = rename_geometry(network_list$catchments, 'geometry')
-  network_list$flow = rename_geometry(network_list$flowpaths, 'geometry')
+  network_list$catchments = rename_geometry(network_list$catchments, "geometry")
+  network_list$flow = rename_geometry(network_list$flowpaths, "geometry")
   names(network_list$catchments) =  tolower(names(network_list$catchments))
   names(network_list$flowpaths)  =  tolower(names(network_list$flowpaths))
   
@@ -54,7 +56,7 @@ refactor  = function (gpkg = NULL,
   
   network_list$flowpaths = dplyr::rename(as.data.frame(network_list$flowpaths), any_of(fl_lookup))
   
-  sf::st_geometry( network_list$flowpaths ) = geom
+  sf::st_geometry(network_list$flowpaths) = geom
   
   tf <- tempfile(pattern = "refactored", fileext = ".gpkg")
   tr <- tempfile(pattern = "reconciled", fileext = ".gpkg")
@@ -72,9 +74,9 @@ refactor  = function (gpkg = NULL,
       mutate(event_identifier = as.character(row_number()))
     
     if("id" %in% names(network_list$flowpaths)){
-      match_id = 'id'
+      match_id = "id"
     } else {
-      match_id = 'comid'
+      match_id = "comid"
     }
     
     outlets <- pois %>%
@@ -169,7 +171,7 @@ refactor  = function (gpkg = NULL,
     }
     
     event_outlets <- events %>%
-      mutate(event_identifier = as.character(1:nrow(events))) %>%
+      mutate(event_identifier = as.character(seq_len(nrow(events)))) %>%
       inner_join(st_drop_geometry(refactored_events), by = "event_identifier") %>%
       select(COMID, event_identifier, poi_id, member_COMID)
 
@@ -235,8 +237,8 @@ refactor  = function (gpkg = NULL,
     final_outlets = NULL
   }
   
-  if (!is.null(fac) &
-      !is.null(fdr) & 
+  if (!is.null(fac) &&
+      !is.null(fdr) &&
       !is.null(network_list$catchments)) {
     
     div_lookup <- c(FEATUREID = "divide_id", FEATUREID = "featureid")
@@ -245,7 +247,7 @@ refactor  = function (gpkg = NULL,
     
     network_list$catchments = rename(as.data.frame(network_list$catchments), any_of(div_lookup))
     
-    st_geometry( network_list$catchments ) = geom
+    st_geometry(network_list$catchments) = geom
   
     r = rast(fac)
     
@@ -329,7 +331,7 @@ refactor  = function (gpkg = NULL,
                overwrite = TRUE)
     }
     
-    return(outfile)
+    outfile
     
   } else {
     list(flowpaths  = rec, catchments = divides) 

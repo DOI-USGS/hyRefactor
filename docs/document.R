@@ -28,7 +28,7 @@ error_line <- which(grepl(".*```$", text) & !grepl("^```,*", text))
 
 text[error_line] <- gsub("```", "", text[error_line])
 
-text <- c(text[1:error_line], "```", text[error_line + 1:length(text)])
+text <- c(text[1:error_line], "```", text[error_line + seq_along(text)])
 
 text <- text[!is.na(text)]
 

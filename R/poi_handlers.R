@@ -11,7 +11,7 @@ add_flowpath_edge_list = function(gpkg){
   gf = read_hydrofabric(gpkg, realization = "flowpaths")
   cn = select(st_drop_geometry(gf[[1]]), id, toid)
   write_sf(cn, gpkg, "flowpath_edge_list")
-  return(gpkg)
+  gpkg
 }
 
 
@@ -27,10 +27,10 @@ add_flowpath_edge_list = function(gpkg){
 
 
 hl_to_outlet = function(gpkg,
-                        type = c('HUC12', 'Gages', 'TE', 'NID', 'WBIn', 'WBOut'),
+                        type = c("HUC12", "Gages", "TE", "NID", "WBIn", "WBOut"),
                         verbose = TRUE){
   
-  valid_types = c('HUC12', 'Gages', 'TE', 'NID', 'WBIn', 'WBOut', "Conf", "Term", "Elev", "Travel", "Con")
+  valid_types = c("HUC12", "Gages", "TE", "NID", "WBIn", "WBOut", "Conf", "Term", "Elev", "Travel", "Con")
   
   if(!all(type %in% valid_types)){
     bad_ids = type[!which(type %in% valid_types)]
@@ -84,7 +84,7 @@ hl_to_outlet = function(gpkg,
 #' @importFrom nhdplusTools get_node
 
 add_mapped_hydrolocations = function(network_list, 
-                           type = c('HUC12', 'Gages', 'TE', 'NID', 'WBIn', 'WBOut'),
+                           type = c("HUC12", "Gages", "TE", "NID", "WBIn", "WBOut"),
                            refactored_gpkg = NULL, 
                            verbose = TRUE){
   
@@ -116,7 +116,7 @@ add_mapped_hydrolocations = function(network_list,
 
   network_list$mapped_POIs = hl
   
-  return(network_list)
+  network_list
   
 }
 
@@ -138,7 +138,7 @@ add_lookup_table = function(gpkg = NULL,
                                  refactored_gpkg = NULL,
                                  reconciled_layer = "flowpaths") {
   
-  if(is.null(gpkg) & !is.null(refactored_gpkg)) {
+  if(is.null(gpkg) && !is.null(refactored_gpkg)) {
     # create lookup for ref flowlines to use in the non-dendritic steps
     refactor_lookup <- st_drop_geometry(read_sf(refactored_gpkg, reconciled_layer)) %>%
       dplyr::select(ID, member_COMID) %>%
@@ -158,7 +158,7 @@ add_lookup_table = function(gpkg = NULL,
     return(refactored_gpkg)
   }
   
-  if (is.null(gpkg) | is.null(refactored_gpkg)) {
+  if (is.null(gpkg) || is.null(refactored_gpkg)) {
     stop("hydrofabrics must be provided.")
   }
   
@@ -209,10 +209,10 @@ add_lookup_table = function(gpkg = NULL,
       mainstem_id = levelpathid) %>%
     mutate(member_COMID = strsplit(member_COMID, ","),
            POI_ID = as.integer(POI_ID)) %>%
-    unnest(cols = 'member_COMID') %>%
-    mutate(NHDPlusV2_COMID_part = sapply( strsplit(member_COMID, "[.]"), FUN = function(x){ x[2] }),
+    unnest(cols = "member_COMID") %>%
+    mutate(NHDPlusV2_COMID_part = sapply(strsplit(member_COMID, "[.]"), FUN = function(x){ x[2] }),
            NHDPlusV2_COMID_part = ifelse(is.na(NHDPlusV2_COMID_part), 1L, as.integer(NHDPlusV2_COMID_part)),
-           NHDPlusV2_COMID = sapply( strsplit(member_COMID, "[.]"), FUN = function(x){ as.numeric(x[1]) })
+           NHDPlusV2_COMID = sapply(strsplit(member_COMID, "[.]"), FUN = function(x){ as.numeric(x[1]) })
     ) %>%
     full_join(lu, by = "NHDPlusV2_COMID") %>%
     left_join(vaa, by = "NHDPlusV2_COMID") %>%
@@ -234,9 +234,6 @@ add_lookup_table = function(gpkg = NULL,
   
   write_sf(lu2, gpkg, "lookup_table")
   
-  return(gpkg)
+  gpkg
   
 }
-
-
-#add_infered_nexus

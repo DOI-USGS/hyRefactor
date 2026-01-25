@@ -58,7 +58,8 @@ refactor(
 
 \item{purge_non_dendritic}{TODO}
 
-\item{keep}{proportion of points to retain in geometry simplification (0-1; default 0.05). See ms_simplify. If NULL, then no simplification will be executed.}
+\item{keep}{proportion of points to retain in geometry simplification (0-1; default 0.05). 
+See ms_simplify. If NULL, then no simplification will be executed.}
 
 \item{outfile}{path to geopackage to write refactored_flowlines, and if facfdr != NULL, refactored catchments.}
 }

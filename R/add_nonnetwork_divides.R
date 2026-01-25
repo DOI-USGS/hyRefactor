@@ -20,11 +20,14 @@ add_nonnetwork_divides = function(gpkg = NULL,
                                   reference_divides = NULL,
                                   verbose = TRUE){
   
-  if(is.null(reference_gpkg) && is.null(reference_divides)){ stop('reference_gpkg and reference_divides cannot be NULL')}
-  if(!is.null(reference_gpkg) && !is.null(reference_divides)){ stop('Either reference_gpkg or reference_divides must be NULL')}
+  if(is.null(reference_gpkg) && is.null(reference_divides)){ 
+    stop("reference_gpkg and reference_divides cannot be NULL")}
+  if(!is.null(reference_gpkg) && !is.null(reference_divides)){ 
+    stop("Either reference_gpkg or reference_divides must be NULL")}
   
   if(!is.null(reference_gpkg)){
-    reference_divides = read_hydrofabric(reference_gpkg, verbose = verbose, realization = "catchments")[[1]]
+    reference_divides = read_hydrofabric(reference_gpkg, verbose = verbose, 
+                                         realization = "catchments")[[1]]
     names(reference_divides) = tolower(names(reference_divides))
   } else {
     names(reference_divides) = tolower(names(reference_divides))
@@ -58,7 +61,7 @@ add_nonnetwork_divides = function(gpkg = NULL,
   
   # Coastal Catchments will be aggregated to HUC12 level POLYGONS (meaning there may be more then 1)
   # Coastal catchments do not have a ds_id as they drain to the ocean.
-  coastal = filter(non_network_divides, type == 'coastal')
+  coastal = filter(non_network_divides, type == "coastal")
   
   if(nrow(coastal) > 0){
     coastal = left_join(coastal, huc12, by = "id") %>% 
@@ -73,7 +76,7 @@ add_nonnetwork_divides = function(gpkg = NULL,
     }
     
   coastal = coastal %>% 
-      mutate(divide_id = 1:n(), id = NA, toid = NA, has_flowline = FALSE,
+      mutate(divide_id = seq_len(n()), id = NA, toid = NA, has_flowline = FALSE,
              ds_id = NA, type = "coastal",
              areasqkm = add_areasqkm(.)) %>% 
       select(divide_id, id, toid, areasqkm, type, has_flowline, ds_id) 
@@ -82,7 +85,7 @@ add_nonnetwork_divides = function(gpkg = NULL,
   
   # Internal catchments are aggregated to their maximum polygon extent
   # a ds_id is assigned as the most downstream network divide.
-  internal = filter(non_network_divides, type == 'internal') 
+  internal = filter(non_network_divides, type == "internal") 
   
   if(nrow(internal) > 0){
     internal =  ms_explode(ms_dissolve(internal))
@@ -93,7 +96,8 @@ add_nonnetwork_divides = function(gpkg = NULL,
     # and adjacent to network divides
     internal = filter(internal, lengths(imap) > 0)
   
-    l = lengths(imap); l = l[l !=0]
+    l = lengths(imap)
+    l = l[l !=0]
     
     internal = data.frame(
       id = rep(internal$rmapshaperid, times = l),
@@ -103,7 +107,7 @@ add_nonnetwork_divides = function(gpkg = NULL,
       group_by(id) %>% 
       slice_min(touch_hydroseq) %>% 
       ungroup() %>% 
-      left_join(rename(internal, id = rmapshaperid), by = 'id') %>% 
+      left_join(rename(internal, id = rmapshaperid), by = "id") %>% 
       st_as_sf() %>% 
       mutate(divide_id = id, id = NA, toid = NA, has_flowline = FALSE,
              ds_id = touch_id, type = "internal",
@@ -116,14 +120,14 @@ add_nonnetwork_divides = function(gpkg = NULL,
   
   if(nrow(divides) > 0){
     divides = divides %>% 
-        mutate(divide_id = -1 * 1:n()) %>% 
+        mutate(divide_id = -1 * seq_len(n())) %>% 
         rename_geometry("geometry") %>% 
         bind_rows(rename_geometry(out_nl$catchments, "geometry"))
     
     write_sf(divides, gpkg, catchment_name, overwrite = TRUE)
     
     
-    net = read_sf(gpkg, 'network')
+    net = read_sf(gpkg, "network")
     
     net = st_drop_geometry(divides) %>% 
       mutate(vpu = net$vpu[1], lengthkm = 0, tot_drainage_areasqkm = areasqkm) %>% 
@@ -133,8 +137,6 @@ add_nonnetwork_divides = function(gpkg = NULL,
     
   }
   
-  
-  
-  return(gpkg)
+  gpkg
 
 }

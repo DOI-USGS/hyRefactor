@@ -13,7 +13,7 @@ make_hf_gpkg_from_uniform_aggregate = function(gpkg){
   nl = list()
   lyrs = st_layers(gpkg)$name
  
-  for(i in 1:length(lyrs)){
+  for(i in seq_along(lyrs)){
     nl[[lyrs[i]]] = read_sf(gpkg, lyrs[i])
   }
 
@@ -31,7 +31,7 @@ make_hf_gpkg_from_uniform_aggregate = function(gpkg){
  
   member_ids = grep("member", names(nl$flowpaths), value = TRUE)
   
-  if(length(member_ids) > 0 ){
+  if(length(member_ids) > 0){
     nl$network_lookup  =  nl$flowpaths %>%
       st_drop_geometry() %>%
       select(
@@ -45,10 +45,10 @@ make_hf_gpkg_from_uniform_aggregate = function(gpkg){
         order = order) %>%
       mutate(member = strsplit(member, ","),
              hl_id = as.integer(hl_id)) %>%
-      unnest(cols = 'member') %>%
-      mutate(hf_id_part = sapply( strsplit(member, "[.]"), FUN = function(x){ x[2] }),
+      unnest(cols = "member") %>%
+      mutate(hf_id_part = sapply(strsplit(member, "[.]"), FUN = function(x){ x[2] }),
              hf_id_part = ifelse(is.na(hf_id_part), 1L, as.integer(hf_id_part)),
-             hf_id = sapply( strsplit(member, "[.]"), FUN = function(x){ as.numeric(x[1]) }),
+             hf_id = sapply(strsplit(member, "[.]"), FUN = function(x){ as.numeric(x[1]) }),
              member = NULL,
              hf_source = "NHDPlusV2"
       ) %>% 
@@ -212,7 +212,7 @@ make_hf_gpkg_from_refactor = function(gpkg){
     select(id, hl_id, starts_with("Type_")) %>% 
     filter(!is.na(hl_id))
   
-  read_sf(gpkg, 'mapped_POIs') %>% 
+  read_sf(gpkg, "mapped_POIs") %>% 
     filter(is.na(identifier))
   
   
@@ -255,7 +255,7 @@ make_hf_gpkg_from_refactor = function(gpkg){
   
   member_ids = grep("member", names(nl$flowpaths), value = TRUE)
   
-  if(length(member_ids) > 0 ){
+  if(length(member_ids) > 0){
     nl$network_lookup  =  nl$flowpaths %>%
       st_drop_geometry() %>%
       select(
@@ -267,10 +267,10 @@ make_hf_gpkg_from_refactor = function(gpkg){
         hydroseq = hydroseq) %>%
       mutate(member = strsplit(member, ","),
              hl_id = as.integer(hl_id)) %>%
-      unnest(cols = 'member') %>%
-      mutate(hf_id_part = sapply( strsplit(member, "[.]"), FUN = function(x){ x[2] }),
+      unnest(cols = "member") %>%
+      mutate(hf_id_part = sapply(strsplit(member, "[.]"), FUN = function(x){ x[2] }),
              hf_id_part = ifelse(is.na(hf_id_part), 1L, as.integer(hf_id_part)),
-             hf_id = sapply( strsplit(member, "[.]"), FUN = function(x){ as.numeric(x[1]) }),
+             hf_id = sapply(strsplit(member, "[.]"), FUN = function(x){ as.numeric(x[1]) }),
              member = NULL,
              hf_source = "NHDPlusV2"
       ) %>% 
@@ -297,4 +297,3 @@ make_hf_gpkg_from_refactor = function(gpkg){
   write_hydrofabric(nl, "data/test.gpkg", TRUE, enforce_dm = TRUE)
 
 }
-

@@ -30,11 +30,13 @@ prep_split_events = function(pois, fline, divides, threshold = 25) {
     pts = st_as_sf(pois, coords = c("X", "Y"), crs = 5070) |>
       st_filter(divides)
   }
-   
-  reference_poi = dplyr::bind_cols(pts, left_join(
-    data.frame(id = seq_len(nrow(pts))),
-    get_flowline_index(st_transform(fline, 5070), pts, search_radius = 50),
-    by = "id" )) |>
+  
+  reference_poi = dplyr::bind_cols(pts, 
+                                   left_join(
+                                     data.frame(id = seq_len(nrow(pts))),
+                                     get_flowline_index(st_transform(fline, 5070), 
+                                                        pts, search_radius = 50), 
+                                     by = "id")) |>
     filter(!is.na(COMID)) |>
     st_sf() |>
     select(poi_id, COMID, REACHCODE, REACH_meas, offset) |>

@@ -15,9 +15,9 @@ network_metadata = function(gpkgs,
                             network_layer  = "network"){
   
   meta = data.frame(path = gpkgs) %>% 
-    mutate(VPU =  sub('.*_', '', gsub(".gpkg", "", basename(path)))) 
+    mutate(VPU =  sub(".*_", "", gsub(".gpkg", "", basename(path)))) 
 
-  for(i in 1:nrow(meta)){
+  for(i in seq_len(nrow(meta))) {
     t = st_layers(meta$path[i])
     meta$flowpaths[i] =  t$features[which(t$name == flowpath_layer)]
     meta$divides[i]   =  t$features[which(t$name == divide_layer)]
@@ -62,11 +62,11 @@ build_new_id_table = function(meta,
   unqiue_ids = sort(unique(unlist(select(network, -hf_id))))
   
   terminals = filter(distinct(select(network, id, toid)), toid == 0 | is.na(toid)) %>% 
-    mutate(terminal_id = term_add + 1:n()) %>% 
+    mutate(terminal_id = term_add + seq_len(n())) %>% 
     select(oldID = id, terminal_id)
   
   df = data.frame(oldID = unqiue_ids) %>% 
-    mutate(newID = c(1:length(unique(unqiue_ids)) + meta$cumcount_unique[index]),
+    mutate(newID = c(seq_along(unique(unqiue_ids)) + meta$cumcount_unique[index]),
            newID = ifelse(oldID == 0, 0, newID)) %>% 
     left_join(terminals, by = "oldID")
   
@@ -84,7 +84,7 @@ build_new_id_table = function(meta,
   
    df$terminals = nrow(terminals)
    
-   return(df)
+   df
 
 }
 
@@ -120,7 +120,7 @@ update_network_identifiers = function(x, lookup, term_add = 1e9, connections  = 
     x$toid = ifelse(to != 0, to, term)
   }
   
-  if(!is.null(connections) & "toid" %in% names(x)){
+  if(!is.null(connections) && "toid" %in% names(x)){
     if("id" %in% names(x)){
     x = filter(x, id %in% connections$from) %>% 
       select(-toid) %>% 
@@ -168,15 +168,15 @@ assign_global_identifiers <- function(gpkgs                     = NULL,
 
   meta = network_metadata(gpkgs, flowpath_layer, divide_layer, network_layer)
 
-  if(is.null(outfiles) & !overwrite){
+  if(is.null(outfiles) && !overwrite){
     stop("No outfiles given and overwrite = FALSE")
   }
   
-  if(!is.null(outfiles) & length(outfiles) != length(gpkgs)){
+  if(!is.null(outfiles) && length(outfiles) != length(gpkgs)){
     stop("length(outfiles) is less then length(gpkgs)")
   }
   
-  if(is.null(outfiles) & overwrite){
+  if(is.null(outfiles) && overwrite){
     meta$outfiles = gpkgs
   } else {
     meta$outfiles = outfiles
@@ -185,19 +185,19 @@ assign_global_identifiers <- function(gpkgs                     = NULL,
   if(!is.null(modifications)){
     modifications = modifications %>% 
       select(from, to) %>% 
-      mutate(connection = 1:n()) %>% 
-      pivot_longer(-connection, names_to = "type", values_to = 'hf_id')
+      mutate(connection = seq_len(n())) %>% 
+      pivot_longer(-connection, names_to = "type", values_to = "hf_id")
   }
  
   
   ll = lapply(
-    1:nrow(meta),
+    seq_len(nrow(meta)),
     FUN = function(l) {
       tmp = build_new_id_table(meta, l, modifications = modifications)
       tmp$unit = l
       meta$terminals[l] <<- tmp$terminals[1]
       meta$cumcount_terminals <<- c(0, head(cumsum(meta$terminals), -1))
-      return(select(tmp, -terminals))
+      select(tmp, -terminals)
     }
   ) %>%  
     bind_rows()
@@ -223,11 +223,11 @@ assign_global_identifiers <- function(gpkgs                     = NULL,
   
  
   
-  for(i in 1:nrow(meta)){
+  for(i in seq_len(nrow(meta))) {
     lyrs   =  st_layers(meta$path[i])$name
     lookup =  filter(ll, unit == i)
     
-    for(j in 1:length(lyrs)){
+    for(j in seq_along(lyrs)){
       
      hyaggregate_log("INFO", glue("Processing Unit {i}/{nrow(meta)} -- {lyrs[j]} ({j}/{length(lyrs)})"), verbose)
      

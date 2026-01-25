@@ -19,8 +19,9 @@
 #' @param cache TODO
 #' @return if outfile = TRUE, a file path, else a list object
 #' @details If gpkg is not NULL, divide and flowpath can be left NULL as well. The code attempts to
-#' infer the correct layers. The divides layer will be the one including the word "divide" or "catchment" and the
-#' flowpath layer will be the one including 'flowpath' or 'flowline'. If no layers, or more then one layer are deemed possible
+#' infer the correct layers. The divides layer will be the one including the word 
+#' "divide" or "catchment" and the flowpath layer will be the one including 
+#' 'flowpath' or 'flowline'. If no layers, or more then one layer are deemed possible
 #' for each input, then the function will stop and ask for explicit names.
 #' @export
 #' @importFrom sf st_transform read_sf st_set_crs write_sf st_layers
@@ -43,7 +44,7 @@ aggregate_to_distribution = function(gpkg = NULL,
                                      overwrite = FALSE,
                                      cache = FALSE,
                                      verbose = TRUE) {
-  if (cache &  is.null(outfile)) {
+  if (cache && is.null(outfile)) {
     stop("cache cannot be written if outfile is NULL")
   }
   
@@ -62,7 +63,7 @@ aggregate_to_distribution = function(gpkg = NULL,
   }
   
   if (!is.null(outfile)) {
-    if (file.exists(outfile) & overwrite) {
+    if (file.exists(outfile) && overwrite) {
       unlink(outfile)
     } else if (file.exists(outfile)) {
       hyaggregate_log("WARN",
@@ -95,7 +96,7 @@ aggregate_to_distribution = function(gpkg = NULL,
     
     network_list$flowpaths  = left_join(mutate(network_list$flowpaths, poi_id = NULL),
                                         st_drop_geometry(outflows),
-                                        by = 'id')
+                                        by = "id")
     
     unique(pois$poi_id) |> length()
     unique(network_list$flowpaths$poi_id) |> sort()
@@ -209,7 +210,7 @@ aggregate_to_distribution = function(gpkg = NULL,
       member  = member_comid,
       flowline_id,
       divide_id,
-      any_of('poi_id'),
+      any_of("poi_id"),
       mainstem,
       hydroseq,
       order,
@@ -217,7 +218,7 @@ aggregate_to_distribution = function(gpkg = NULL,
       areasqkm,
       tot_drainage_areasqkm
     ) %>%
-    separate_longer_delim(cols = 'member', delim = ",") %>%
+    separate_longer_delim(cols = "member", delim = ",") %>%
     mutate(
       hf_id_part = sapply(
         strsplit(member, "[.]"),
@@ -263,7 +264,7 @@ aggregate_to_distribution = function(gpkg = NULL,
                                 verbose = verbose,
                                 enforce_dm = FALSE)
     
-    return(outfile)
+    outfile
     
   } else {
     network_list

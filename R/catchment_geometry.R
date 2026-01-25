@@ -37,7 +37,7 @@ union_polygons = function(poly, ID){
   if (any(grepl("COLLECTION",  st_geometry_type(poly)))) {
     poly = st_collection_extract(poly, "POLYGON")
   }
-  return(poly)
+  poly
 
 }
 
@@ -149,11 +149,11 @@ clean_geometry <- function(catchments,
       st_cast("POLYGON") %>% 
       fast_validity_check() %>% 
       add_count(!!sym(ID)) %>% 
-      mutate(areasqkm = add_areasqkm(.), tmpID = 1:n()) %>% 
+      mutate(areasqkm = add_areasqkm(.), tmpID = seq_len(n())) %>% 
       rename_geometry("geometry") 
   })
   
-  if(any(st_geometry_type(polygons) != "POLYGON") | 
+  if(any(st_geometry_type(polygons) != "POLYGON") || 
      nrow(polygons) != MASTER_COUNT){
     # separate polygons with more than 1 feature counts
     extra_parts = filter(polygons, n != 1) 
@@ -166,7 +166,7 @@ clean_geometry <- function(catchments,
       silent = TRUE
     )
     
-    extra_parts$tmpID = 1:nrow(extra_parts)
+    extra_parts$tmpID = seq_len(nrow(extra_parts))
     
     if(!is.null(flowlines)){
       
@@ -179,13 +179,13 @@ clean_geometry <- function(catchments,
       l = lengths(imap)
     
       df = data.frame(
-        tmpID    = rep(extra_parts[['tmpID']], times = l),
+        tmpID    = rep(extra_parts[["tmpID"]], times = l),
         uid      = rep(extra_parts[[ID]], times = l),
-        touch_id = fl[[fl_ID]][unlist(imap)] ) %>% 
+        touch_id = fl[[fl_ID]][unlist(imap)]) %>% 
         group_by(tmpID) %>% 
         summarize(prime = any(uid == touch_id))
       
-      extra_parts = left_join(extra_parts, df, by = 'tmpID') %>% 
+      extra_parts = left_join(extra_parts, df, by = "tmpID") %>% 
         mutate(prime = ifelse(is.na(prime), FALSE, prime))
       
     } else {
@@ -236,7 +236,7 @@ clean_geometry <- function(catchments,
       small_parts =  mutate(
         small_parts, 
         areasqkm = add_areasqkm(small_parts),
-        newID    = 1:n()
+        newID    = seq_len(n())
       ) %>% 
         select(newID)
       
@@ -270,7 +270,7 @@ clean_geometry <- function(catchments,
         group_by(.data[[ID]]) %>%
         mutate(n = n()) %>%
         ungroup() %>%
-        rename_geometry('geometry')
+        rename_geometry("geometry")
       
       in_cat <- 
         union_polygons(
@@ -282,7 +282,7 @@ clean_geometry <- function(catchments,
             filter(tj, n == 1), 
             !!ID)
         ) %>%
-        mutate(tmpID = 1:n()) %>% 
+        mutate(tmpID = seq_len(n())) %>% 
         fast_validity_check()
       
     } else {
@@ -302,7 +302,7 @@ clean_geometry <- function(catchments,
       })
     } 
   
-    x = select(catchments, -any_of(c('areasqkm')))  %>%
+    x = select(catchments, -any_of(c("areasqkm")))  %>%
         st_drop_geometry()  %>%
         mutate("{ID}" := as.numeric(get(!!ID))) 
       
@@ -312,7 +312,7 @@ clean_geometry <- function(catchments,
         select(ID, areasqkm) |>
         left_join(x, by = ID)
    
-     return(x2)
+     x2
     
   } else {
     
@@ -332,10 +332,7 @@ clean_geometry <- function(catchments,
       })
        
     } 
-    
-     return(
-       select(polygons, -any_of(c("n", 'tmpID')))
-     )
+    select(polygons, -any_of(c("n", "tmpID")))
   }
 }
   
@@ -347,7 +344,7 @@ fast_validity_check <- function(x){
   invalid = st_make_valid(filter(x, !bool)) %>% 
     st_cast("POLYGON")
   
-  return(bind_rows(valid, invalid))
+  bind_rows(valid, invalid)
   
 }
 
@@ -447,5 +444,5 @@ add_lengthmap = function(flowpaths, length_table){
     right_join(flowpaths) %>%
     st_as_sf()
 
-  return(map)
+  map
 }

@@ -119,7 +119,7 @@ aggregate_network_to_outlets <- function(flowpath, outlets,
 
   cat_sets   <- left_join(cat_sets, next_id, by = "ID")
 
-  return(list(cat_sets = cat_sets, fline_sets = fline_sets))
+  list(cat_sets = cat_sets, fline_sets = fline_sets)
 }
 
 validate_flowpath <- function(flowpath, outlets, post_mortem_file) {
@@ -137,7 +137,7 @@ validate_flowpath <- function(flowpath, outlets, post_mortem_file) {
   
   flowpath$toID <- as(flowpath$toID, class(flowpath$ID))
   
-  return(flowpath)
+  flowpath
 }
 
 get_lps <- function(flowpath) {
@@ -341,7 +341,7 @@ make_outlets_valid <- function(outlets, flowpath,
     }
   }
   
-  return(outlets)
+  outlets
 }
 
 sort_outlets <- function(outlets, flowpath) {
@@ -402,7 +402,7 @@ prep_flowpath <- function(flowpath) {
 
 prep_outlets <- function(outlets, flowpath) {
   outlets <- left_join(outlets, select(flowpath, ID, id), by = "ID")
-  outlets$set <- 1:nrow(outlets)
+  outlets$set <- seq_len(nrow(outlets))
   outlets
 }
 
@@ -414,9 +414,9 @@ get_heads <- function(flowpath) {
 get_dwn <- function(ID, toid) {
   next_dn <- toid[ID]
   if(is.na(next_dn)) {
-    return(ID)
+    ID
   } else {
-    return(c(ID, get_dwn(next_dn, toid)))
+    c(ID, get_dwn(next_dn, toid))
   }
 }
 

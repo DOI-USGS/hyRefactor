@@ -145,10 +145,8 @@ check_names <- function(x, function_name) {
                                              names_x))],
                       collapse = ", "), "."))
   }
-  return(invisible(x))
+  invisible(x)
 }
-
-# nolint end
 
 get_ds_lengthkm <- function(flines) {
   # This gets all the next-downstream flowlines and finds the

@@ -6,21 +6,33 @@
 #' @noRd
 
 add_areasqkm_to_crosswalk = function(crosswalk, comid = "hf_id"){
-  get_vaa('areasqkm') %>% 
+  get_vaa("reasqkm") %>% 
     select(s_areasqkm = areasqkm, !!comid := comid) %>% 
     right_join(crosswalk, by = eval(comid)) 
 }
 
 
 #' @title Add Prefixes to Topological Data
-#' @description This function adds specified prefixes to the `id` and `toid` columns of a topological data frame based on the type of topology and its context (e.g., network or nexus).
-#' @param topo A data frame containing topological data. Must include columns `topo_type`, `type`, `id`, and `toid`.
-#' @param hf_prefix A character string to prefix `id` values in rows where `topo_type == "network"`. Default is `"cat-"`.
-#' @param nexus_prefix A character string to prefix `toid` values in rows where `type` does not match specific cases (`terminal`, `coastal`, or `internal`). Default is `"nex-"`.
-#' @param terminal_nexus_prefix A character string to prefix `toid` values where `type == "terminal"`. Default is `"tnx-"`.
-#' @param coastal_nexus_prefix A character string to prefix `toid` values where `type == "coastal"`. Default is `"cnx-"`.
-#' @param internal_nexus_prefix A character string to prefix `toid` values where `type == "internal"`. Default is `"inx-"`.
-#' @return A data frame with updated `id` and `toid` values, including appropriate prefixes based on the type of topology and the `type` column. The resulting data frame contains the columns `id`, `toid`, `type`, and any additional columns with names containing `"vpu"`.
+#' @description This function adds specified prefixes to the `id` and `toid` 
+#' columns of a topological data frame based on the type of topology and its 
+#' context (e.g., network or nexus).
+#' @param topo A data frame containing topological data. Must include columns 
+#' `topo_type`, `type`, `id`, and `toid`.
+#' @param hf_prefix A character string to prefix `id` values in rows where 
+#' `topo_type == "network"`. Default is `"cat-"`.
+#' @param nexus_prefix A character string to prefix `toid` values in rows where 
+#' `type` does not match specific cases (`terminal`, `coastal`, or `internal`). 
+#' Default is `"nex-"`.
+#' @param terminal_nexus_prefix A character string to prefix `toid` values where 
+#' `type == "terminal"`. Default is `"tnx-"`.
+#' @param coastal_nexus_prefix A character string to prefix `toid` values where 
+#' `type == "coastal"`. Default is `"cnx-"`.
+#' @param internal_nexus_prefix A character string to prefix `toid` values where 
+#' `type == "internal"`. Default is `"inx-"`.
+#' @return A data frame with updated `id` and `toid` values, including appropriate 
+#' prefixes based on the type of topology and the `type` column. The resulting 
+#' data frame contains the columns `id`, `toid`, `type`, and any additional 
+#' columns with names containing `"vpu"`.
 #' @noRd
 
 add_prefix = function(topo,
@@ -59,12 +71,17 @@ add_prefix = function(topo,
 }
 
 #' @title Remove Prefixes from Columns
-#' @description This function removes prefixes from specified columns in a data frame by extracting the numeric portion of the values after the last `-` character.
+#' @description This function removes prefixes from specified columns in a data 
+#' frame by extracting the numeric portion of the values after the last `-` character.
 #' @param input A data frame containing the columns to be processed.
-#' @param col A character vector specifying the names of the columns from which to remove prefixes.
-#' @return The input data frame with the specified columns updated. The values in these columns are converted to numeric, retaining only the portion after the last `-` character.
+#' @param col A character vector specifying the names of the columns from which 
+#' to remove prefixes.
+#' @return The input data frame with the specified columns updated. The values 
+#' in these columns are converted to numeric, retaining only the portion after 
+#' the last `-` character.
 #' @details 
-#' - The function processes each specified column by removing the prefix up to and including the last `-` character using a regular expression.
+#' - The function processes each specified column by removing the prefix up to
+#'  and including the last `-` character using a regular expression.
 #' - The updated columns are converted to numeric values.
 #' @noRd
 
@@ -76,18 +93,27 @@ flush_prefix	 = function (input, col) {
 }
 
 #' @title Add Non-Network Nexus Locations
-#' @description This function generates spatial points for non-network nexus locations (coastal and internal) based on the provided divides. It assigns unique identifiers and links them to waterbody identifiers.
-#' @param divides A spatial data frame (e.g., `sf` object) containing polygons representing divides. Must include columns `type`, `divide_id`, and `toid`.
-#' @param coastal_nexus_prefix A character string to prefix `divide_id` values for coastal nexus locations. Default is `"cnx-"`.
-#' @param internal_nexus_prefix A character string to prefix `divide_id` values for internal nexus locations. Default is `"inx-"`.
-#' @param waterbody_prefix A character string to prefix `toid` values for non-network nexus locations. Default is `"wb-"`.
-#' @return A spatial data frame (e.g., `sf` object) containing the non-network nexus locations. The resulting data frame includes the columns:
-#' - `id`: Unique identifier for each nexus location (prefixed with `coastal_nexus_prefix` or `internal_nexus_prefix`).
+#' @description This function generates spatial points for non-network 
+#' nexus locations (coastal and internal) based on the provided divides. 
+#' It assigns unique identifiers and links them to waterbody identifiers.
+#' @param divides A spatial data frame (e.g., `sf` object) containing polygons 
+#' representing divides. Must include columns `type`, `divide_id`, and `toid`.
+#' @param coastal_nexus_prefix A character string to prefix `divide_id` values 
+#' for coastal nexus locations. Default is `"cnx-"`.
+#' @param internal_nexus_prefix A character string to prefix `divide_id` values 
+#' for internal nexus locations. Default is `"inx-"`.
+#' @param waterbody_prefix A character string to prefix `toid` values for 
+#' non-network nexus locations. Default is `"wb-"`.
+#' @return A spatial data frame (e.g., `sf` object) containing the non-network 
+#' nexus locations. The resulting data frame includes the columns:
+#' - `id`: Unique identifier for each nexus location (prefixed with 
+#' `coastal_nexus_prefix` or `internal_nexus_prefix`).
 #' - `toid`: Linked waterbody identifier (prefixed with `waterbody_prefix`).
 #' - `type`: The type of nexus (`coastal` or `internal`).
 #' - `geometry`: The spatial location of each nexus.
 #' @details
-#' - For each divide of type `coastal` or `internal`, the function calculates a representative point using `st_point_on_surface`.
+#' - For each divide of type `coastal` or `internal`, the function calculates a 
+#' representative point using `st_point_on_surface`.
 #' - Prefixes are applied to `divide_id` and `toid` values using `flush_prefix` and `mutate`.
 #' - The output retains only the columns `id`, `toid`, `type`, and geometry.
 #' @noRd
@@ -97,24 +123,24 @@ add_nonnetwork_nexus_location  = function(divides,
                                           internal_nexus_prefix = "inx-",
                                           waterbody_prefix = "wb-"){
   
-  coastal_nex = suppressWarnings({ st_point_on_surface(filter(divides, type == "coastal") ) }) %>%
-    flush_prefix(c('divide_id', 'toid')) %>%
+  coastal_nex = suppressWarnings({ st_point_on_surface(filter(divides, type == "coastal")) }) %>%
+    flush_prefix(c("divide_id", "toid")) %>%
     mutate(divide_id = paste0(coastal_nexus_prefix, divide_id),
            type = "coastal",
            toid = paste0(waterbody_prefix, 0)) %>%
     select(divide_id, toid, type) %>%
     rename_geometry("geometry")
   
-  internal_nex = suppressWarnings({ st_point_on_surface(filter(divides, type == "internal") ) }) %>%
-    flush_prefix(c('divide_id', 'toid')) %>%
+  internal_nex = suppressWarnings({ st_point_on_surface(filter(divides, type == "internal")) }) %>%
+    flush_prefix(c("divide_id", "toid")) %>%
     mutate(divide_id = paste0(internal_nexus_prefix, divide_id),
            type = "internal",
            toid = paste0(waterbody_prefix, 0)) %>%
     select(divide_id, toid, type) %>%
     rename_geometry("geometry")
   
-  return(bind_rows(coastal_nex, internal_nex) %>%
-           rename(id = divide_id))
+  bind_rows(coastal_nex, internal_nex) %>%
+    rename(id = divide_id)
   
 }
 
@@ -129,9 +155,10 @@ add_nonnetwork_nexus_location  = function(divides,
 #' @param waterbody_prefix      character prefix for catchment IDs
 #' @return list
 #' @noRd
-#' @importFrom  dplyr select mutate left_join bind_rows group_by mutate ungroup filter distinct bind_rows slice_max rename case_when
-#' @importFrom  nhdplusTools rename_geometry get_node
-#' @importFrom  sf st_drop_geometry st_intersects st_as_sf
+#' @importFrom dplyr select mutate left_join bind_rows group_by mutate 
+#' @importFrom dplyr ungroup filter distinct bind_rows slice_max rename case_when
+#' @importFrom nhdplusTools rename_geometry get_node
+#' @importFrom sf st_drop_geometry st_intersects st_as_sf
 
 realign_topology = function(network_list,
                             nexus_prefix = NULL,
@@ -150,7 +177,7 @@ realign_topology = function(network_list,
   if(is.null(term_filter)){
     
     if(is.null(term_add)){
-      term_net = filter(net, toid == 0 )
+      term_net = filter(net, toid == 0)
     } else {
       term_net = filter(net, toid >= term_add) 
     }
@@ -174,7 +201,7 @@ realign_topology = function(network_list,
   
   # Cast flow network to end nodes, these are the outlets of the flowpaths
   ends = iso  %>%
-    rename_geometry('geometry') %>%
+    rename_geometry("geometry") %>%
     mutate(geometry = get_node(., "end")$geometry) %>%
     left_join(st_drop_geometry(select(iso, id)), by = "id", multiple = "all")
   
@@ -233,7 +260,7 @@ realign_topology = function(network_list,
   
   straight_flow = filter(df, n == 1 & id == touches) |> 
     select(id, toid) |> 
-    mutate(type = 'nexus')
+    mutate(type = "nexus")
   
   ### --- NEXUS 1 --- ###
   # nexuses are those typed as nex where the id and touches ID are not equal
@@ -282,11 +309,11 @@ realign_topology = function(network_list,
     filter(touches_toID > term_add) %>%
     left_join(
       select(df, id, ds_term = touches_toID),
-      by = c('toid' = "id"),
+      by = c("toid" = "id"),
       relationship = "many-to-many") %>%
     left_join(
       select(df, toid, hs),
-      by = c('ds_term' = "toid"),
+      by = c("ds_term" = "toid"),
       relationship = "many-to-many") %>%
     distinct() %>%
     filter(touches_toID != ds_term) %>%
@@ -322,7 +349,7 @@ realign_topology = function(network_list,
   ## NEW!!! ##
   xx =  select(topo, toid, type) %>%
     group_by(toid) %>%
-    mutate(type = ifelse(any(type == 'terminal'), "terminal", type)) %>%
+    mutate(type = ifelse(any(type == "terminal"), "terminal", type)) %>%
     slice(1) %>%
     ungroup()
   
@@ -331,13 +358,13 @@ realign_topology = function(network_list,
     left_join(xx, by = "toid", multiple = "all") %>%
     filter(id != toid)
   
-  # We'll use the fl --> nex topo to modify the input flow network toIDs
+  # We"ll use the fl --> nex topo to modify the input flow network toIDs
   # Additionally we will add the NextGen required prefixes.
   fl =  left_join(select(network_list$flowpaths, -toid), 
                   topo, 
                   by = "id", 
                   multiple = "all")  %>%
-    rename_geometry('geometry') %>%
+    rename_geometry("geometry") %>%
     mutate(id = paste0(waterbody_prefix, id),
            toid = paste0(ifelse(type == "terminal", terminal_nexus_prefix, nexus_prefix), toid),
            realized_catchment = gsub(waterbody_prefix, catchment_prefix, id)) |> 
@@ -348,7 +375,7 @@ realign_topology = function(network_list,
   divide =  left_join(select(network_list$catchments, -toid),
                       select(topo, id, toid, net_type = type), 
                       by = "id")  %>%
-    rename_geometry('geometry') %>%
+    rename_geometry("geometry") %>%
     #filter(id == 24873) |> 
     mutate(toid = ifelse(type %in% c("coastal", "internal"), divide_id, toid),
            net_type = ifelse(is.na(net_type), type, net_type),
@@ -404,7 +431,7 @@ realign_topology = function(network_list,
   # We then add the nex --> fl topo to the existing fl --> nex topo
   topo = suppressWarnings({
     nex %>%
-      flush_prefix(col = c('id', 'toid')) %>%
+      flush_prefix(col = c("id", "toid")) %>%
       select(id, toid, type) %>%
       st_drop_geometry() %>%
       mutate(topo_type = "nexus") %>%
@@ -415,12 +442,14 @@ realign_topology = function(network_list,
   
   
   if(sum(!divide$toid %in% nex$id) != 0){
-    stop('Divides flow to nexus locations that do not exist!\n',
-         paste(st_drop_geometry(divide[which(!divide$toid %in% nex$id),"divide_id"]),"-->", st_drop_geometry(divide[which(!divide$toid %in% nex$id),"toid"]), "\n"), call. = FALSE)
+    stop("Divides flow to nexus locations that do not exist!\n",
+         paste(st_drop_geometry(divide[which(!divide$toid %in% nex$id),"divide_id"]),
+               "-->", st_drop_geometry(divide[which(!divide$toid %in% nex$id),"toid"]), 
+               "\n"), call. = FALSE)
   }
   
-  filter(divide, divide_id == 'cat-212673')
-  filter(divide, divide_id == 'cat-212675')
+  filter(divide, divide_id == "cat-212673")
+  filter(divide, divide_id == "cat-212675")
   
   if(sum(!fl$toid %in% nex$id) != 0){
     stop("Flowpaths flow to nexus locations that do not exist!\n",
@@ -522,7 +551,7 @@ apply_nexus_topology = function(gpkg,
     mutate(vpuid =  as.character(vpu)) |>
     select(divide_id, toid, type, ds_id, areasqkm, contains("vpu")) %>%
     left_join(st_drop_geometry(select(ngen_flows$flowpaths, id, divide_id, 
-                                      lengthkm, tot_drainage_areasqkm )), 
+                                      lengthkm, tot_drainage_areasqkm)), 
               by = "divide_id") %>%
     mutate(areasqkm = add_areasqkm(.),
            has_flowline = !is.na(id))
