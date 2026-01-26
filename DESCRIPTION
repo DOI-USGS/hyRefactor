@@ -42,7 +42,8 @@ Imports:
     methods
 Suggests: 
     testthat,
-    knitr
+    knitr,
+    rmarkdown
 License: CC0
 Encoding: UTF-8
 RoxygenNote: 7.3.3
