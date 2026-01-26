@@ -12,7 +12,7 @@
 #' appended and must be treated as one would treat a semantic version. .1 is the 
 #' most upstream and the sequence increases in the downstream direction.
 #' @importFrom dplyr group_by ungroup filter select mutate lead n right_join
-#' @importFrom nhdplusTools rename_geometry
+#' @importFrom hydroloom rename_geometry
 #' @seealso The \code{\link{refactor_nhdplus}} function implements a complete
 #' workflow using `split_flowlines()`.
 #' @export

@@ -29,7 +29,7 @@ add_network_type = function(network_list, verbose = TRUE) {
 #' @importFrom sf st_drop_geometry
 #' @importFrom dplyr %>% cur_group_id n
 #' @importFrom logger log_info
-#' @importFrom nhdplusTools rename_geometry
+#' @importFrom hydroloom rename_geometry
 
 aggregate_along_mainstems = function(network_list,
                                      ideal_size_sqkm,

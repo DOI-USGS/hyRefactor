@@ -163,8 +163,7 @@ reconcile_collapsed_flowlines <- function(flines, geom = NULL, id = "COMID") {
 #' @importFrom tidyr separate_rows
 #' @importFrom parallel makeCluster stopCluster
 #' @importFrom pbapply pblapply
-#' @importFrom data.table rbindlist
-#' @importFrom nhdplusTools rename_geometry
+#' @importFrom hydroloom rename_geometry
 
 reconcile_catchment_divides <- function(catchment, 
                                         fline_ref, 
@@ -257,21 +256,26 @@ reconcile_catchment_divides <- function(catchment,
     split_cats <- st_sf(FEATUREID = NA, geom = list(sf::st_multipolygon()))
   } else {
     if(!inherits(split_cats, "sf")) {
-      split_cats <- sf::st_as_sf(data.table::rbindlist(split_cats[!sapply(split_cats, is.null)]))
+      split_cats <- sf::st_as_sf(dplyr::bind_rows(split_cats[!sapply(split_cats, is.null)]))
     }
     split_cats <- sf::st_cast(split_cats, "MULTIPOLYGON")
   }
   
   split_cats <- dplyr::group_by(split_cats, FEATUREID) %>% 
     dplyr::filter(dplyr::row_number() == 1) %>%
-    dplyr::ungroup()
+    dplyr::ungroup() |>
+    filter(!is.na(FEATUREID))
   
   unsplit <- get_cat_unsplit(catchment, fline_ref, to_split_featureids)
   
   if(nrow(unsplit) > 0) {
-    split_cats <- sf::st_as_sf(data.table::rbindlist(list(
-      unsplit,
-      split_cats)))
+    if(nrow(split_cats) == 0) { 
+      split_cats <- unsplit
+    } else {
+      split_cats <- sf::st_as_sf(dplyr::bind_rows(list(
+        unsplit,
+        split_cats))) 
+    }
   }
   
   combinations <- reconciled$member_COMID[grepl(",", reconciled$member_COMID)]
@@ -288,8 +292,8 @@ reconcile_catchment_divides <- function(catchment,
   }
   
   if(length(unioned_cats) > 0) {
-    unioned_cats <- sf::st_as_sf(data.table::rbindlist(unioned_cats))
-    split_cats   <- sf::st_as_sf(data.table::rbindlist(list(
+    unioned_cats <- sf::st_as_sf(dplyr::bind_rows(unioned_cats))
+    split_cats   <- sf::st_as_sf(dplyr::bind_rows(list(
       dplyr::filter(split_cats, !FEATUREID %in% unioned_cats$FEATUREID),
       unioned_cats
     )))

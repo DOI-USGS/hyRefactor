@@ -195,7 +195,7 @@ refactor  = function (gpkg = NULL,
       select(hf_id, poi_id, member_COMID)
 
     outlets_ref_COMID <-
-      data.table::rbindlist(list(outlets_ref, event_outlets), fill = TRUE) %>%
+      dplyr::bind_rows(list(outlets_ref, event_outlets), fill = TRUE) %>%
       st_as_sf()
     
   } else {

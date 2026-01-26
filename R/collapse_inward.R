@@ -2,7 +2,7 @@
 #' @param flowpaths sf LINESTRING
 #' @return data.frame with id, type, touches, touches_toID columns
 #' @noRd
-#' @importFrom nhdplusTools rename_geometry get_node
+#' @importFrom hydroloom rename_geometry get_node
 #' @importFrom sf st_intersects st_drop_geometry st_cast
 #' @importFrom dplyr left_join select
 

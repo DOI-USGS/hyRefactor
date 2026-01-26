@@ -157,7 +157,7 @@ add_nonnetwork_nexus_location  = function(divides,
 #' @noRd
 #' @importFrom dplyr select mutate left_join bind_rows group_by mutate 
 #' @importFrom dplyr ungroup filter distinct bind_rows slice_max rename case_when
-#' @importFrom nhdplusTools rename_geometry get_node
+#' @importFrom hydroloom rename_geometry get_node
 #' @importFrom sf st_drop_geometry st_intersects st_as_sf
 
 realign_topology = function(network_list,
