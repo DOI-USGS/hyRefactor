@@ -1,33 +1,49 @@
 Package: hyRefactor
 Type: Package
-Title: Hydrologic Network Refactoring Tools Based on HY_Features
-Version: 0.4.11
-Authors@R: c(person("David", "Blodgett", role = c("aut", "cre"), email = "dblodgett@usgs.gov"),
-           person(given = "Mike", family = "Johnson", role = "aut", comment = c(ORCID = "0000-0002-5288-8350")))
-Description: A collection of tools for normalizing and changing the size of catchments.
-URL: https://github.com/dblodgett-usgs/hyrefactor
-BugReports: https://github.com/dblodgett-usgs/hyrefactor/issues
-Depends:
-    R (>= 3.5.0)
-Imports:
-    dplyr,
-    sf,
-    lwgeom,
-    units,
+Title: Hydrologic Network Refactoring and Aggregation Tools
+Version: 0.6.1
+Authors@R: c(person(given = "Mike", family = "Johnson", 
+                    role = c("aut"), 
+                    comment = c(ORCID = "0000-0002-5288-8350"), 
+                                email = "jjohnson@lynker.com"),
+            person("David", "Blodgett", 
+                    role = c("aut", "cre"), 
+                    email = "dblodgett@usgs.gov"))
+Description: A collection of tools for manipulating hydrologic and hydraulic networks.
+URL: https://github.com/DOI-USGS/hyRefactor
+BugReports: https://github.com/DOI-USGS/hyRefactor/issues
+Depends: 
+    R (>= 4.1.0)
+Imports: 
     data.table,
-    terra,
-    nhdplusTools,
-    tidyr,
-    pbapply,
-    rvest,
+    dplyr,
+    glue,
     httr,
+    hydroloom,
+    igraph,
+    logger,
+    lwgeom,
     methods,
+    nhdplusTools,
+    parallel,
+    pbapply,
     rlang,
     rmapshaper,
-    utils
-Suggests: testthat, knitr, rmarkdown
+    rvest,
+    sf,
+    stats,
+    terra,
+    tibble,
+    tidyr,
+    units,
+    utils,
+    yyjsonr,
+    future,
+    methods
+Suggests: 
+    testthat,
+    knitr
 License: CC0
 Encoding: UTF-8
-LazyData: true
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.3
 VignetteBuilder: knitr

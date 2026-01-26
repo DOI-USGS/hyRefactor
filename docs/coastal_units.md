@@ -5,9 +5,6 @@ First, we use `nhdplusTools` to download and plot some data along the
 California coast.
 
     library(hyRefactor)
-    #> Registered S3 method overwritten by 'geojsonlint':
-    #>   method         from 
-    #>   print.location dplyr
 
     temp_gpkg <- tempfile(fileext = ".gpkg")
 
@@ -15,13 +12,7 @@ California coast.
                         crs = sf::st_crs(4326))
     nhd_data <- nhdplusTools::plot_nhdplus(bbox = bbox, gpkg = temp_gpkg, overwrite = TRUE)
     #> although coordinates are longitude/latitude, st_intersects assumes that they are planar
-    #> although coordinates are longitude/latitude, st_intersects assumes that they are planar
-    #> although coordinates are longitude/latitude, st_intersects assumes that they are planar
-    #> although coordinates are longitude/latitude, st_intersects assumes that they are planar
-    #> although coordinates are longitude/latitude, st_intersects assumes that they are planar
-    #> Zoom: 10
-    #> Map tiles by Carto, under CC BY 3.0. Data by OpenStreetMap, under ODbL.
-    #> Audotdetect projection: assuming Google Mercator (epsg 3857)
+    #> Zoom set to: 10
 
 ![](../docs/coastal_units_files/figure-markdown_strict/plot-1.png)
 
@@ -45,9 +36,8 @@ flowline in our subset to find complete basins then we use the
                                     mode = "UT", distance_km = 999)$UT_flowlines
     }))
 
-    sub <- lapply(nhdplusTools::subset_nhdplus(c(as.integer(flowline$nhdplus_comid), coastal$COMID), 
-                                        nhdplus_data = "download", flowline_only = FALSE),
-                  nhdplusTools::align_nhdplus_names)
+    sub <- nhdplusTools::subset_nhdplus(c(as.integer(flowline$nhdplus_comid), coastal$COMID), 
+                                        nhdplus_data = "download", flowline_only = FALSE)
     #> All intersections performed in latitude/longitude.
     #> Reading NHDFlowline_Network
     #> Writing NHDFlowline_Network
@@ -56,6 +46,8 @@ flowline in our subset to find complete basins then we use the
     #> although coordinates are longitude/latitude, st_intersects assumes that they are planar
     #> although coordinates are longitude/latitude, st_intersects assumes that they are planar
     #> although coordinates are longitude/latitude, st_intersects assumes that they are planar
+
+    sub <- lapply(sub, nhdplusTools::align_nhdplus_names)
 
     plt <- function(x) sf::st_geometry(sf::st_transform(x, 3857))
 
@@ -66,9 +58,7 @@ flowline in our subset to find complete basins then we use the
                                plot_config = list(
                                  flowline = list(lwd = 0.5, col = "lightblue")), 
                                flowline_only = TRUE)
-    #> Zoom: 10
-    #> Map tiles by Carto, under CC BY 3.0. Data by OpenStreetMap, under ODbL.
-    #> Audotdetect projection: assuming Google Mercator (epsg 3857)
+    #> Zoom set to: 10
     plot(plt(cats), add = TRUE, col = "tan")
     plot(plt(net), add = TRUE, col = "blue")
 
@@ -88,7 +78,7 @@ direction and flow accumulation data to use with hyRefactor later on.
     fac_path <- file.path(fdr_dir, "NHDPlusCA/NHDPlus18/NHDPlusFdrFac18c/fac/")
 
     library(terra)
-    #> terra 1.6.7
+    #> terra 1.8.93
     #> 
     #> Attaching package: 'terra'
     #> The following objects are masked from 'package:magrittr':
@@ -120,9 +110,7 @@ coastal basins.
                                plot_config = list(
                                  flowline = list(lwd = 0.5, col = "lightblue")), 
                                flowline_only = TRUE)
-    #> Zoom: 10
-    #> Map tiles by Carto, under CC BY 3.0. Data by OpenStreetMap, under ODbL.
-    #> Audotdetect projection: assuming Google Mercator (epsg 3857)
+    #> Zoom set to: 10
     plot(plt(cats), add = TRUE, col = "tan")
     plot(plt(net), add = TRUE, col = "lightblue")
     plot(plt(coastal_cats), add = TRUE, col = "grey")
@@ -150,9 +138,7 @@ catchments as part of the refactor workflow.
                                plot_config = list(
                                  flowline = list(lwd = 0.5, col = "lightblue")), 
                                flowline_only = TRUE)
-    #> Zoom: 10
-    #> Map tiles by Carto, under CC BY 3.0. Data by OpenStreetMap, under ODbL.
-    #> Audotdetect projection: assuming Google Mercator (epsg 3857)
+    #> Zoom set to: 10
     plot(plt(net), add = TRUE, col = "lightblue")
     plot(plt(outlets[outlets$keep == "keep",]), add = TRUE, col = "red")
     plot(plt(outlets[outlets$keep == "temporary",]), add = TRUE, col = "black")
@@ -193,14 +179,13 @@ flowlines.*
                                            fdr = fdr_path,
                                            fac = fac_path,
                                            para = 1) 
+    #> Linking to GEOS 3.13.1, GDAL 3.11.4, PROJ 9.7.0; sf_use_s2() is FALSE
 
     nhdplusTools::plot_nhdplus(bbox = bbox, nhdplus_data = temp_gpkg, 
                                plot_config = list(
                                  flowline = list(lwd = 0.5, col = "lightblue")), 
                                flowline_only = TRUE)
-    #> Zoom: 10
-    #> Map tiles by Carto, under CC BY 3.0. Data by OpenStreetMap, under ODbL.
-    #> Audotdetect projection: assuming Google Mercator (epsg 3857)
+    #> Zoom set to: 10
     plot(plt(divides), add = TRUE, col = "tan")
     plot(plt(reconciled), add = TRUE, col = "blue")
 
@@ -215,7 +200,7 @@ Finally, we can identify the outlets
 
     zero_order <- list(basin = little_terminal$COMID, zero = coastal$COMID)
 
-    agg_cats <- aggregate_catchments(flowpath = reconciled, 
+    agg_cats <- aggregate_to_outlets(flowpath = reconciled, 
                                      divide = divides, 
                                      outlets = dplyr::select(mapped_outlets, ID, type),
                                      zero_order = zero_order,
@@ -228,9 +213,7 @@ Finally, we can identify the outlets
                                plot_config = list(
                                  flowline = list(lwd = 0.5, col = "lightblue")), 
                                flowline_only = TRUE)
-    #> Zoom: 10
-    #> Map tiles by Carto, under CC BY 3.0. Data by OpenStreetMap, under ODbL.
-    #> Audotdetect projection: assuming Google Mercator (epsg 3857)
+    #> Zoom set to: 10
     plot(plt(agg_cats$cat_sets), add = TRUE, col = "tan")
     plot(plt(agg_cats$fline_sets), add = TRUE, col = "blue")
     plot(plt(agg_cats$coastal_sets), add = TRUE, col = "grey")

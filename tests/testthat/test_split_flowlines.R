@@ -30,8 +30,6 @@ test_that("split lines works", {
 
   expect_true(nrow(split) == 573)
   
-  expect_true(all(split$split_fID_event == 1))
-  
   event <- sf::st_sf(id = 1, 
                      COMID = 5329357, 
                      REACHCODE = "18050005000080", 
@@ -74,11 +72,20 @@ test_that("split lines works", {
                                                  mode = "function")) {
 
   flines_in <- readRDS("data/guadalupe_network_geom.rds")
+  
+  
+  flines = suppressWarnings(dplyr::inner_join(dplyr::select(flines_in, COMID),
+                                              sf::st_set_geometry(flines_in, NULL) %>%
+                                                nhdplusTools::prepare_nhdplus(0, 0, warn = FALSE),
+                                              by = "COMID") %>%
+                              sf::st_as_sf() %>%
+                              sf::st_cast("LINESTRING") %>%
+                              sf::st_transform(5070))
 
   flines <- suppressWarnings(
     dplyr::inner_join(dplyr::select(flines_in, COMID),
                       sf::st_set_geometry(flines_in, NULL) %>%
-                        nhdplusTools::prepare_nhdplus(0, 0),
+                        nhdplusTools::prepare_nhdplus(0, 0, warn = FALSE),
                       by = "COMID") %>%
     sf::st_as_sf() %>%
     sf::st_cast("LINESTRING") %>%

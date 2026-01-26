@@ -333,8 +333,7 @@ collapse_flowlines <- function(flines, thresh, add_category = FALSE,
     }
   }
 
-
-  return(distinct(flines))
+  distinct(flines)
 }
 
 #' @title Collapse Outlets
@@ -446,7 +445,7 @@ collapse_outlets <- function(flines, thresh,
     count <- count + 1
     if (count > 100) stop("stuck in short outlet loop")
   }
-  return(list(flines = flines, short_outlets_tracker = short_outlets_tracker))
+  list(flines = flines, short_outlets_tracker = short_outlets_tracker)
 }
 
 #' @title Reconcile removed flowlines
@@ -557,7 +556,7 @@ reconcile_removed_flowlines <- function(flines, reroute_set, removed,
                                 joined_toCOMID != -9999), NA, toCOMID)) %>%
     select(-joined_fromCOMID_new, -dsLENGTHKM)
 
-  return(flines)
+  flines
 }
 
 #' @title Reconcile removed flowlines in the downstream direction
@@ -641,5 +640,5 @@ reconcile_downstream <- function(flines, remove_fun,
     rfl <- remove_fun(flines)
 
   }
-  return(list(flines = flines, removed_tracker = removed_tracker))
+  list(flines = flines, removed_tracker = removed_tracker)
 }

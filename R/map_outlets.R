@@ -1,11 +1,3 @@
-hy_drop_geometry <- function(x) {
-  if("sf" %in% class(x)) {
-    sf::st_drop_geometry(x)
-  } else {
-    x
-  } 
-}
-
 #' Map outlets from COMID to ID for aggregate catchments
 #' @description given reconciled flowlines and a set of source outlets,
 #' returns a set of outlets with reconciled IDs suitable for use with 
@@ -16,8 +8,8 @@ hy_drop_geometry <- function(x) {
 #' @export
 map_outlet_ids <- function(source_outlets, reconciled) {
 
-  source_outlets <- hy_drop_geometry(source_outlets)
-  reconciled <- hy_drop_geometry(reconciled)
+  source_outlets <- sf::st_drop_geometry(source_outlets)
+  reconciled <- sf::st_drop_geometry(reconciled)
   
   # Convert member comid to a list column and truncate with as.integer
   # 1.1 becomes 1, 1.9 becomes 1, etc. This removes part ids.

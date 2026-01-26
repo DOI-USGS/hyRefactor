@@ -62,7 +62,7 @@ reconcile_collapsed_flowlines <- function(flines, geom = NULL, id = "COMID") {
   new_flines <-
     left_join(new_flines,
               data.frame(becomes = unique(new_flines$becomes),
-                         ID = seq_len(length(unique(new_flines$becomes))),
+                         ID = seq_along(unique(new_flines$becomes)),
                          stringsAsFactors = FALSE),
               by = "becomes")
   
@@ -74,12 +74,12 @@ reconcile_collapsed_flowlines <- function(flines, geom = NULL, id = "COMID") {
 
   new_flines <- left_join(new_flines,
                           select(new_flines, .data$becomes, toID = .data$ID),
-                          by = c("toCOMID" = "becomes")) %>%
+                          by = c("toCOMID" = "becomes"), relationship = "many-to-many") %>%
     arrange(.data$Hydroseq, desc(.data$part))
 
   new_flines <- left_join(new_flines,
                           data.frame(ID = unique(new_flines$ID),
-                                     ID_Hydroseq = seq_len(length(unique(new_flines$ID)))),
+                                     ID_Hydroseq = seq_along(unique(new_flines$ID))),
                           by = "ID")
 
   new_lp <- group_by(new_flines, .data$LevelPathI) %>%
@@ -126,7 +126,7 @@ reconcile_collapsed_flowlines <- function(flines, geom = NULL, id = "COMID") {
       sf::st_as_sf()
   }
   
-  return(new_flines)
+  new_flines
 }
 
 #' @title Reconcile Catchment Divides
@@ -158,25 +158,25 @@ reconcile_collapsed_flowlines <- function(flines, geom = NULL, id = "COMID") {
 #' @details Note that all inputs must be passed in the same projection.
 #' @export
 #' @importFrom sf st_crs st_transform st_precision st_drop_geometry st_sf st_multipolygon st_as_sf st_cast st_dimension
-#' @importFrom nhdplusTools rename_geometry
 #' @importFrom terra crs res
 #' @importFrom dplyr select distinct filter group_by summarise ungroup row_number mutate bind_rows
 #' @importFrom tidyr separate_rows
 #' @importFrom parallel makeCluster stopCluster
 #' @importFrom pbapply pblapply
 #' @importFrom data.table rbindlist
+#' @importFrom nhdplusTools rename_geometry
 
 reconcile_catchment_divides <- function(catchment, 
-                                              fline_ref, 
-                                              fline_rec, 
-                                              fdr = NULL, fac = NULL,
-                                              para = 2, cache = NULL, 
-                                              min_area_m = 800, 
-                                              snap_distance_m = 100,
-                                              simplify_tolerance_m = 40, 
-                                              vector_crs = 5070,
-                                              fix_catchments = TRUE,
-                                              keep = .9) {
+                                        fline_ref, 
+                                        fline_rec, 
+                                        fdr = NULL, fac = NULL,
+                                        para = 2, cache = NULL, 
+                                        min_area_m = 800, 
+                                        snap_distance_m = 100,
+                                        simplify_tolerance_m = 40, 
+                                        vector_crs = 5070,
+                                        fix_catchments = TRUE,
+                                        keep = NULL) {
   
   in_crs    <- st_crs(catchment)
   catchment <- rename_geometry(catchment, "geom")
@@ -186,12 +186,12 @@ reconcile_catchment_divides <- function(catchment,
   if(!is.null(fdr) && !is.null(fac)){
     
     fdr_temp <- fdr
+    
     if(!inherits(fdr_temp, "SpatRaster")){
       fdr_temp <- terra::rast(fdr_temp)
     }
-
+    
     catchment <-  st_transform(catchment, terra::crs(fdr_temp)) 
-    #st_precision(catchment) <- terra::res(fdr_temp)[1]
     fline_ref <-  st_transform(fline_ref,  terra::crs(fdr_temp))
     fline_rec <-  st_transform(fline_rec,  terra::crs(fdr_temp))
   }
@@ -317,16 +317,23 @@ reconcile_catchment_divides <- function(catchment,
   
   if(fix_catchments){
     # cat("Fixing Catchment Geometries...\n")
-    clean_geometry(catchments = out, "ID", keep) %>% 
+    clean_geometry(catchments = out, ID = "ID", keep = keep) %>% 
       sf::st_transform(in_crs)
   } else {
     sf::st_transform(out, in_crs)
   }
 }
 
-par_split_cat <- function(fid, to_split_ids, fline_ref, catchment, fdr, fac,
-                          min_area_m, snap_distance_m,
-                          simplify_tolerance_m, vector_crs) {
+par_split_cat <- function(fid, 
+                          to_split_ids, 
+                          fline_ref, 
+                          catchment, 
+                          fdr, 
+                          fac,
+                          min_area_m, 
+                          snap_distance_m,
+                          simplify_tolerance_m, 
+                          vector_crs) {
   out <- NULL
   try({
     
@@ -365,7 +372,7 @@ par_split_cat <- function(fid, to_split_ids, fline_ref, catchment, fdr, fac,
                                         stringsAsFactors = FALSE)
   }, silent = FALSE)
   
-  return(out)
+  out
 }
 
 get_split_cats <- function(cats, split_cats, cache = NULL) {

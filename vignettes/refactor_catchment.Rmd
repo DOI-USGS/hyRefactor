@@ -37,8 +37,8 @@ library(hyRefactor)
 
 source(system.file("extdata", "walker_data.R", package = "hyRefactor"))
 
-fac <- walker_fac@ptr$filenames()
-fdr <- walker_fdr@ptr$filenames()
+# fac <- walker_fac@ptr$filenames()
+# fdr <- walker_fdr@ptr$filenames()
 
 ref <- tempfile(fileext = ".gpkg")
 rec <- tempfile(fileext = ".gpkg")
@@ -99,8 +99,8 @@ flowline_rec <- sf::st_transform(flowline_rec, sf::st_crs(walker_fdr))
 split_cats <- reconcile_catchment_divides(catchment = walker_catchment, 
                                           fline_ref = flowline_ref, 
                                           fline_rec = flowline_rec, 
-                                          fdr = fdr, 
-                                          fac = fac, 
+                                          fdr = walker_fdr_path, 
+                                          fac = walker_fac_path, 
                                           para = 4)
 
 plot(st_geometry(split_cats), col = NA, border = "red")
@@ -118,7 +118,7 @@ outlets <- data.frame(ID = c(31, 3, 5, 1, 45, 92),
                       type = c("outlet", "outlet", "outlet", "terminal", "outlet", "outlet"),
                       stringsAsFactors = FALSE)
 
-aggregated <- aggregate_catchments(flowpath = flowline_rec, 
+aggregated <- aggregate_to_outlets(flowpath = flowline_rec, 
                                    divide = split_cats,
                                    outlets = outlets)
 

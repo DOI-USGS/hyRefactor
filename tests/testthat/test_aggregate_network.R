@@ -1,10 +1,13 @@
-context("aggregate network")
+context("aggregate network to outlets")
+
+Sys.setenv(TURN_OFF_SYS_MAPSHAPER = "YUP")
 
 test_that("example runs", {
   source(system.file("extdata", "walker_data.R", package = "nhdplusTools"))
 
   fline <- dplyr::right_join(dplyr::select(walker_flowline, COMID),
-                             suppressWarnings(nhdplusTools::prepare_nhdplus(walker_flowline, 0, 0, 0, FALSE)))
+                             suppressWarnings(nhdplusTools::prepare_nhdplus(walker_flowline, 0, 0, 0, FALSE)),
+                             by = "COMID")
 
   fline <- dplyr::select(fline, ID = COMID, toID = toCOMID,
                          LevelPathID = LevelPathI, Hydroseq)
@@ -13,20 +16,21 @@ test_that("example runs", {
                         type = c("outlet", "outlet", "outlet", "terminal", "outlet", "outlet"),
                         stringsAsFactors = FALSE)
 
-  aggregated <- aggregate_network(fline, outlets)
+  aggregated <- aggregate_network_to_outlets(flowpath = fline, outlets)
 
   expect_equal(names(aggregated), c("cat_sets", "fline_sets"))
+  expect_true(any(grepl("LevelPathID", names(aggregated$fline_sets), ignore.case = TRUE)))
 
   expect_equal(nrow(aggregated$fline_sets), 12)
 
   outlets$ID[1] <- 10
 
-  expect_error(aggregate_network(fline, outlets), "Outlet IDs must all be in flowpaths.")
+  expect_error(aggregate_network_to_outlets(fline, outlets), "Outlet IDs must all be in flowpaths.")
 
   outlets$ID[1] <- 5329357
   outlets$type[1] <- "terminal"
 
-  expect_error(aggregate_network(fline, outlets), "Terminal paths must have an NA or 0 toID")
+  expect_error(aggregate_network_to_outlets(fline, outlets), "Terminal paths must have an NA or 0 toID")
 })
 
 test_that("minimal network", {
@@ -68,3 +72,6 @@ test_that("missing outlet", {
   
   expect_true(21047070 %in% outlets$ID)
 })
+
+
+Sys.unsetenv("TURN_OFF_SYS_MAPSHAPER")

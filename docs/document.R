@@ -1,6 +1,6 @@
 # This builds documentation for the package in Markdown format.
 
-Rd2md::ReferenceManual(outdir = "docs/")
+Rd2md::render_refman(output_file = "docs/Reference_Manual_hyRefactor.md")
 
 outfile <- "docs/Reference_Manual_hyRefactor.md"
 
@@ -28,7 +28,7 @@ error_line <- which(grepl(".*```$", text) & !grepl("^```,*", text))
 
 text[error_line] <- gsub("```", "", text[error_line])
 
-text <- c(text[1:error_line], "```", text[error_line + 1:length(text)])
+text <- c(text[1:error_line], "```", text[error_line + seq_along(text)])
 
 text <- text[!is.na(text)]
 
@@ -39,6 +39,6 @@ rstudioapi::restartSession()
 rmarkdown::render("vignettes/split_refactor.Rmd", "md_document", output_file = "../docs/split_refactor.md")
 rstudioapi::restartSession()
 rmarkdown::render("vignettes/refactor_catchment.Rmd", "md_document", output_file = "../docs/refactor_catchment.md")
-rstudioapi::restartSession()
+rstudioapi::restartSession(clean = TRUE)
 rmarkdown::render("vignettes/coastal_units.Rmd", "md_document", output_file = "../docs/coastal_units.md")
 rstudioapi::restartSession()

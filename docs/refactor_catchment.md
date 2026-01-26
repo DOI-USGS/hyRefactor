@@ -12,19 +12,15 @@ NHDPlus Refactor workflow documented over in
 `vignette("refactor_nhdplus")`.
 
     library(sf)
-    #> Linking to GEOS 3.9.1, GDAL 3.4.3, PROJ 7.2.1; sf_use_s2() is TRUE
+    #> Linking to GEOS 3.13.1, GDAL 3.11.4, PROJ 9.7.0; sf_use_s2() is TRUE
     library(nhdplusTools)
-    #> USGS Support Package: https://owi.usgs.gov/R/packages.html#support
     library(hyRefactor)
-    #> Registered S3 method overwritten by 'geojsonlint':
-    #>   method         from 
-    #>   print.location dplyr
 
     source(system.file("extdata", "walker_data.R", package = "hyRefactor"))
-    #> terra 1.6.7
+    #> terra 1.8.93
 
-    fac <- walker_fac@ptr$filenames
-    fdr <- walker_fdr@ptr$filenames
+    # fac <- walker_fac@ptr$filenames()
+    # fdr <- walker_fdr@ptr$filenames()
 
     ref <- tempfile(fileext = ".gpkg")
     rec <- tempfile(fileext = ".gpkg")
@@ -62,7 +58,7 @@ Accumulation Raster (FAC) are also plotted.
 
 ![](../docs/refactor_catchment_files/figure-markdown_strict/single_plots-2.png)
 
-    plot( walker_fac)
+    plot(walker_fac)
 
 ![](../docs/refactor_catchment_files/figure-markdown_strict/single_plots-3.png)
 
@@ -103,8 +99,8 @@ results back into an `sf` `data.frame`.
     split_cats <- reconcile_catchment_divides(catchment = walker_catchment, 
                                               fline_ref = flowline_ref, 
                                               fline_rec = flowline_rec, 
-                                              fdr = fdr, 
-                                              fac = fac, 
+                                              fdr = walker_fdr_path, 
+                                              fac = walker_fac_path, 
                                               para = 4)
 
     plot(st_geometry(split_cats), col = NA, border = "red")
@@ -130,7 +126,7 @@ set of outlet locations.
                           type = c("outlet", "outlet", "outlet", "terminal", "outlet", "outlet"),
                           stringsAsFactors = FALSE)
 
-    aggregated <- aggregate_catchments(flowpath = flowline_rec, 
+    aggregated <- aggregate_to_outlets(flowpath = flowline_rec, 
                                        divide = split_cats,
                                        outlets = outlets)
     #> Fixing 1 missing outlets.
@@ -166,7 +162,7 @@ aggregated results.
 NOTE: left / right split is not function in v0.4.8
 
 
-    split_catchments <- do.call(c, lapply(c(1:nrow(aggregated$cat_sets)), 
+    split_catchments <- do.call(c, lapply(c(seq_len(nrow(aggregated$cat_sets))), 
                                           function(g, ac, af, fdr, fac) {
                                             split_catchment_divide(ac[g, ], af[g, ], 
                                                                    fdr, fac, lr = FALSE)
@@ -261,38 +257,38 @@ Catchments relate to the output? Let’s look at what’s in the output.
     #> [93] "5329295.2"
 
     (aggregated_ids <- aggregated$cat_sets$ID)
-    #>  [1]  1  2  3  5 31 45 53 79 92 93
+    #>  [1]  1 45 53 79 92 93  2  3  5 31
 
     (aggregated_id_mapping <- aggregated$cat_sets$set)
     #> [[1]]
     #> [1] 1
     #> 
     #> [[2]]
-    #>  [1] 21 20 26 27  2 32 28 29 30 59 60
-    #> 
-    #> [[3]]
-    #>  [1] 17 54 55 12 38 39 36 37  3 56 57 58 61 62 63 66 67 64 65 24  4 14 77 25 13
-    #> 
-    #> [[4]]
-    #>  [1] 75 76  7 40 41  6  5 16 71 72 73 74 68 69 70  8 23 22 15
-    #> 
-    #> [[5]]
-    #>  [1] 90 91  9 31 88 89 10 86 87 46 47 48 33 34 35 19 18 80 81 49 50 84 85 82 83 11
-    #> 
-    #> [[6]]
     #> [1] 42 43 44 45
     #> 
-    #> [[7]]
+    #> [[3]]
     #> [1] 51 52 53
     #> 
-    #> [[8]]
+    #> [[4]]
     #> [1] 78 79
     #> 
-    #> [[9]]
+    #> [[5]]
     #> [1] 92
     #> 
-    #> [[10]]
+    #> [[6]]
     #> [1] 93
+    #> 
+    #> [[7]]
+    #>  [1] 21 20 26 27  2 32 28 29 30 59 60
+    #> 
+    #> [[8]]
+    #>  [1] 17 54 55 12 38 39 36 37  3 56 57 58 61 62 63 66 67 64 65 24  4 14 77 25 13
+    #> 
+    #> [[9]]
+    #>  [1] 75 76  7 40 41  6  5 16 71 72 73 74 68 69 70  8 23 22 15
+    #> 
+    #> [[10]]
+    #>  [1] 90 91  9 31 88 89 10 86 87 46 47 48 33 34 35 19 18 80 81 49 50 84 85 82 83 11
 
 This may look like a complicated mess but there’s structure here.
 Stepping through the identifiers, we have:
@@ -344,7 +340,7 @@ catchment to output aggregate identifier.
     #>  8         5329317            30 5329317.3                         2                       2
     #>  9         5329315            31 5329315.1                        31                      31
     #> 10         5329315            32 5329315.2                         2                       2
-    #> # … with 94 more rows
+    #> # ℹ 94 more rows
 
 Ta Da!! Have fun and [report bugs
 here](https://github.com/dblodgett-usgs/nhdplusTools/issues).

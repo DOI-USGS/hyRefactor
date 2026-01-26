@@ -12,6 +12,18 @@ vignette: >
 ```{r setup, include = FALSE}
 local <- (Sys.getenv("BUILD_VIGNETTES") == "TRUE")
 
+options("rgdal_show_exportToProj4_warnings"="none",
+        rmarkdown.html_vignette.check_title = FALSE)
+library(magrittr)
+sf::sf_use_s2(FALSE)
+
+# Change these paths to your local copy to rerun!
+fdr_path <- 
+  "../../_reference_fabric/reference-hydrofabric/workspace/data/fdrfac/NHDPlusCA/NHDPlus18/NHDPlusFdrFac18c/fdr/"
+fac_path <- 
+  "../../_reference_fabric/reference-hydrofabric/workspace/data/fdrfac/NHDPlusCA/NHDPlus18/NHDPlusFdrFac18c/fac/"
+if(!file.exists(fdr_path)) local <- FALSE
+
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -19,12 +31,6 @@ knitr::opts_chunk$set(
   fig.height=4,
   eval=local
 )
-options("rgdal_show_exportToProj4_warnings"="none",
-        rmarkdown.html_vignette.check_title = FALSE)
-library(magrittr)
-sf::sf_use_s2(FALSE)
-fdr_path <- "../../gfv2/workspace/data/fdrfac/NHDPlusCA/NHDPlus18/NHDPlusFdrFac18c/fdr/"
-fac_path <- "../../gfv2/workspace/data/fdrfac/NHDPlusCA/NHDPlus18/NHDPlusFdrFac18c/fac/"
 ```
 
 This article demonstrates how to work with coastal catchments and small coastal basins in an hyRefactor workflow.
@@ -57,9 +63,10 @@ flowline <- dplyr::bind_rows(
                                 mode = "UT", distance_km = 999)$UT_flowlines
 }))
 
-sub <- lapply(nhdplusTools::subset_nhdplus(c(as.integer(flowline$nhdplus_comid), coastal$COMID), 
-                                    nhdplus_data = "download", flowline_only = FALSE),
-              nhdplusTools::align_nhdplus_names)
+sub <- nhdplusTools::subset_nhdplus(c(as.integer(flowline$nhdplus_comid), coastal$COMID), 
+                                    nhdplus_data = "download", flowline_only = FALSE)
+
+sub <- lapply(sub, nhdplusTools::align_nhdplus_names)
 
 plt <- function(x) sf::st_geometry(sf::st_transform(x, 3857))
 
@@ -194,7 +201,7 @@ mapped_outlets <- map_outlet_ids(keep_outlets, reconciled) %>%
 
 zero_order <- list(basin = little_terminal$COMID, zero = coastal$COMID)
 
-agg_cats <- aggregate_catchments(flowpath = reconciled, 
+agg_cats <- aggregate_to_outlets(flowpath = reconciled, 
                                  divide = divides, 
                                  outlets = dplyr::select(mapped_outlets, ID, type),
                                  zero_order = zero_order,

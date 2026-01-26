@@ -1,8 +1,10 @@
 # nolint start
 suppressWarnings(library(terra))
 extdata <- system.file("extdata", package = "hyRefactor")
-walker_fac <- suppressWarnings(terra::rast(file.path(extdata, "walker_fac.tif")))
-walker_fdr <- suppressWarnings(terra::rast(file.path(extdata, "walker_fdr.tif")))
+walker_fac_path <- file.path(extdata, "walker_fac.tif")
+walker_fdr_path <- file.path(extdata, "walker_fdr.tif")
+walker_fac <- suppressWarnings(terra::rast(walker_fac_path))
+walker_fdr <- suppressWarnings(terra::rast(walker_fdr_path))
 
 wgpkg <- tempfile(fileext = ".gpkg")
 
@@ -47,4 +49,7 @@ walker_flowline  <- sf::st_transform(walker_flowline, terra::crs(walker_fdr))
 # nolint end
 walker_fline_ref     <- sf::read_sf(file.path(extdata, "walker_refactor.gpkg"))
 walker_fline_rec     <- sf::read_sf(file.path(extdata, "walker_reconcile.gpkg"))
+
+walker_fline_rec$toID[is.na(walker_fline_rec$toID)] <- 0
+
 walker_catchment_rec <- sf::read_sf(file.path(extdata, "walker_cat_rec.gpkg"))

@@ -36,7 +36,9 @@ split_flowlines <- function(flines, max_length = NULL,
   
   flines <- rename_geometry(flines, "geom")
   
-  split <- split_lines(flines, max_length, events, 
+  split <- split_lines(input_lines = flines, 
+                       max_length, 
+                       events, 
                        para = para, 
                        avoid = avoid)
   
@@ -46,8 +48,8 @@ split_flowlines <- function(flines, max_length = NULL,
                        select(sf::st_set_geometry(flines, NULL), COMID, toCOMID, LevelPathI, Hydroseq, TotDASqKM), 
                        by = "COMID")
     
-    split$part <- unlist(lapply(strsplit(split$split_fID, "\\."),
-                                function(x) x[2]))
+    split$part <- as.numeric(unlist(lapply(strsplit(split$split_fID, "\\."),
+                                function(x) x[2])))
     
     split <- group_by(split, COMID)
     
@@ -173,7 +175,13 @@ split_lines <- function(input_lines,
   
   if(is.logical(input_lines$split_fID)) input_lines$split_fID <- as.character(input_lines$split_fID)
   
-  return(input_lines)
+  input_lines
+}
+
+new_line <- function(i, f, t, l) {
+  lwgeom::st_linesubstring(x = sf::st_geometry(l)[i],
+                           from = f,
+                           to = t)[[1]]
 }
 
 # rescale REACH_meas to comid_meas
@@ -185,7 +193,7 @@ rf <- function(m, f, t) {
   
 }
 
-add_length <- function(input_lines) {
+add_lengthm <- function(input_lines) {
   
   input_lines$geom_len <- sf::st_length(sf::st_geometry(input_lines))
   attr(input_lines$geom_len, "units") <- NULL
@@ -206,13 +214,6 @@ split_lines_fun <- function(split_points, lines, para) {
   
   lines <- pbapply::pblapply(seq_len(nrow(split_points)),
                                FUN = function(x, s, lines) {
-                                 
-                                 new_line <- function(i, f, t, l) {
-                                   lwgeom::st_linesubstring(x = sf::st_geometry(l)[i],
-                                                            from = f,
-                                                            to = t)[[1]]
-                                 }
-                                 
                                  new_line(i = which(lines$COMID == s$COMID[x]),
                                           f = split_points$start[x],
                                           t = split_points$end[x],
@@ -298,7 +299,7 @@ split_by_length <- function(lines, max_length, event_split_points, avoid) {
   
   if(is.null(max_length)) return(data.frame())
   
-  lines <- sf::st_drop_geometry(add_length(lines))
+  lines$geom_len <- as.numeric(sf::st_length(lines))
   
   if(nrow(event_split_points) > 0) {
     event_split_points <- dplyr::left_join(event_split_points, 
@@ -335,13 +336,13 @@ split_by_length <- function(lines, max_length, event_split_points, avoid) {
   # for each part we expect in the output.
   
   lines[rep(seq_len(nrow(lines)),lines$pieces), ] %>%
-    dplyr::select(-.data$pieces) %>%
+    dplyr::select(-pieces) %>%
     # Assign featureIDs to the output. start and end are decimal % along catchment
     dplyr::group_by(.data$fID) %>%
     dplyr::mutate(piece = seq_len(n())) %>%
     dplyr::mutate(start = (.data$piece - 1) / dplyr::n(),
                   end = .data$piece / dplyr::n()) %>%
     dplyr::ungroup() %>%
-    dplyr::select(-.data$piece)
+    dplyr::select(-piece)
   
 }
